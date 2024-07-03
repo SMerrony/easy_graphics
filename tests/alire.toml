@@ -1,0 +1,19 @@
+name = "tests"
+description = "Test programs for Easy_Graphics package"
+version = "0.1.0"
+
+authors = ["Stephen Merrony"]
+maintainers = ["Stephen Merrony <merrony@gmail.com>"]
+maintainers-logins = ["SMerrony"]
+licenses = "MIT OR Apache-2.0 WITH LLVM-exception"
+website = ""
+tags = []
+
+executables = ["tests"]
+
+[[depends-on]]
+easy_graphics = "*"
+
+[[pins]]
+easy_graphics = { path = ".." }
+
