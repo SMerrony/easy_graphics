@@ -129,6 +129,29 @@ procedure Tests is
       Write_PPM (Text_Img, "text_raw.ppm");
    end Test_Text;
 
+   procedure Test_Turtle is
+      Turtle_Img : Image_8 := New_Image (-300, -300, 300, 300, WHITE);
+      Turtle     : Turtle_Rec := New_Turtle (Turtle_Img'Unrestricted_Access);
+      Angle      : Integer := 0;
+   begin
+      Turtle.Pen_Down;
+      while Angle < 360 loop
+         Turtle.Turn_To (Angle);
+         Turtle.Forward (70);
+         Turtle.Left (45);
+         Turtle.Forward (100);
+         Turtle.Right (90);
+         Turtle.Forward (150);
+         Turtle.Home;
+         Angle := Angle + 15;
+      end loop;
+      Turtle.Pen_Color (RED);     Turtle.Turn_To (0); Turtle.Forward (275); Turtle.Home;
+      Turtle.Pen_Color (GREEN);   Turtle.Right (90);  Turtle.Forward (275); Turtle.Home;
+      Turtle.Pen_Color (BLUE);    Turtle.Right (90);  Turtle.Forward (275); Turtle.Home;
+      Turtle.Pen_Color (MAGENTA); Turtle.Right (90);  Turtle.Forward (275); Turtle.Home;
+      Write_PPM (Turtle_Img, "turtle_test.ppm");
+   end Test_Turtle;
+
 begin
 
    Test_Basics;
@@ -138,5 +161,6 @@ begin
    Test_Graphs;
    Test_HSV_Colour_Wheel;
    Test_Text;
+   Test_Turtle;
 
 end Tests;

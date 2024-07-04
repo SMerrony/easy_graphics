@@ -3,6 +3,8 @@
 
 pragma Ada_2022;
 
+with Ada.Numerics;                      use Ada.Numerics;
+with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
 with Ada.Streams.Stream_IO;             use  Ada.Streams.Stream_IO;
 with Ada.Text_IO;
 
@@ -41,6 +43,72 @@ package body Easy_Graphics is
       Fill (Img, Colour);
       return Img;
    end New_Image;
+
+   function New_Turtle (Img_Acc : access Image_8) return Turtle_Rec is
+      Turtle : Turtle_Rec;
+   begin
+      Turtle.Image     := Img_Acc;
+      Turtle.Position  := (Img_Acc'First (1) + (Img_Acc'Last (1) - Img_Acc'First (1)) / 2, 
+                           Img_Acc'First (2) + (Img_Acc'Last (2) - Img_Acc'First (2)) / 2);
+      Turtle.Direction := 0; --  "North"
+      Turtle.Pen_Down  := False;
+      Turtle.Colour    := BLACK;
+      return Turtle;
+   end New_Turtle;
+
+   procedure Home (Turtle : in out Turtle_Rec) is
+      From_Pos : Point := Turtle.Position;
+      New_Pos  : Point := (Turtle.Image'First (1) + (Turtle.Image'Last (1) - Turtle.Image'First (1)) / 2, 
+                           Turtle.Image'First (2) + (Turtle.Image'Last (2) - Turtle.Image'First (2)) / 2);
+   begin
+      Turtle.Position  := New_Pos;
+      if Turtle.Pen_Down then
+         Line (Turtle.Image.All, From_Pos, Turtle.Position, Turtle.Colour);
+      end if;
+   end Home;
+
+   procedure Pen_Up (Turtle : in out Turtle_Rec) is
+   begin
+      Turtle.Pen_Down := False;
+   end Pen_Up;
+
+   procedure Pen_Down (Turtle : in out Turtle_Rec) is
+   begin
+      Turtle.Pen_Down := True;
+   end Pen_Down;
+
+   procedure Pen_Color (Turtle : in out Turtle_Rec; Colour : RGB_8) is
+   begin
+      Turtle.Colour := Colour;
+   end Pen_Color;
+
+   procedure Forward (Turtle :in out Turtle_Rec; Steps : Natural) is
+      From_Pos     : Point := Turtle.Position;
+      New_X, New_Y : Integer;
+   begin
+      New_X := From_Pos.X + Integer (Float (Steps) * Sin (Float (Turtle.Direction), 360.0));
+      New_Y := From_Pos.Y + Integer (Float (Steps) * Cos (Float (Turtle.Direction), 360.0));
+      Turtle.Position := (New_X, New_Y);
+      --  Ada.Text_IO.Put_Line ("DEBUG: Old Posn" & From_Pos'Image & " New Posn" & Turtle.Position'Image);
+      if Turtle.Pen_Down then
+         Line (Turtle.Image.All, From_Pos, Turtle.Position, Turtle.Colour);
+      end if;
+   end Forward;
+
+   procedure Left (Turtle :in out Turtle_Rec; Degrees : Natural) is
+   begin
+      Turtle.Direction := @ - Degrees;
+   end Left;
+
+   procedure Right (Turtle :in out Turtle_Rec; Degrees : Natural) is
+   begin
+      Turtle.Direction := @ + Degrees;
+   end Right;
+
+   procedure Turn_To (Turtle :in out Turtle_Rec; Degrees : Natural) is
+   begin
+      Turtle.Direction := Degrees;
+   end Turn_To;
 
    function X_First (Img : Image_8) return Integer is (Img'First (1));
    function Y_First (Img : Image_8) return Integer is (Img'First (2));

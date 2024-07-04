@@ -132,9 +132,32 @@ package Easy_Graphics is
    --  Write an image as a PPM file to disk using plain (ASCII) or raw (mostly binary) format.
    --  Raw PPMs are significantly smaller than plain, but there is still no compression whatsoever.
 
+   --  Turtle Graphics... ----
+   type Turtle_Rec is tagged private;
+
+   function New_Turtle (Img_Acc : access Image_8) return Turtle_Rec;
+
+   procedure Home      (Turtle : in out Turtle_Rec);
+   procedure Pen_Up    (Turtle : in out Turtle_Rec);
+   procedure Pen_Down  (Turtle : in out Turtle_Rec);
+   procedure Pen_Color (Turtle : in out Turtle_Rec; Colour : RGB_8);
+   procedure Forward   (Turtle : in out Turtle_Rec; Steps : Natural);
+   procedure Left      (Turtle : in out Turtle_Rec; Degrees : Natural);
+   procedure Right     (Turtle : in out Turtle_Rec; Degrees : Natural);
+   procedure Turn_To   (Turtle : in out Turtle_Rec; Degrees : Natural);
+
 private
    type Image_8  is array (Integer range <>, Integer range <>) of RGB_8;
    type Image_8A is array (Integer range <>, Integer range <>) of RGBA_8;
+
+   type Turtle_Rec is tagged record
+      Image     : access Image_8;
+      Position  : Point;
+      Direction : Integer;
+      Pen_Down  : Boolean;
+      Colour    : RGB_8;
+   end record;
+
 
    type Seg_16_T is mod 2 ** 16;
    type Seg_16_Font_T is array (Character range Character'Val (32) .. Character'Val (255)) of Seg_16_T;

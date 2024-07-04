@@ -28,3 +28,12 @@ It is free to use, with no warranty, under the MIT license.
 * `Circle` (filled or outline)
 * `Char` draw a character using a simple built-in font
 * `Text` draw a string
+
+### Turtle Graphics
+Basic turtle graphics are supported.
+* `New_Turtle` creates a turtle for an image
+* `Home` centres the turtle
+* `Pen_Up`, `Pen_Down` and `Pen_Color`
+* `Forward`
+* `Left` and `Right` turn relative to the current heading
+* `Turn_To` turns to an absolute heading
