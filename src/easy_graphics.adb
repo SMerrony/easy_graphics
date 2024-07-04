@@ -118,6 +118,32 @@ package body Easy_Graphics is
       Plot (Img, (X, Y), Colour);
    end Line;
 
+   procedure Rect (Img : in out Image_8;
+                   Bottom_Left, Top_Right : Point;
+                   Colour : RGB_8;
+                   Fill   : Filled_Or_Outline)
+   is
+   begin
+      if Fill = Filled then
+         for Y in Bottom_Left.Y .. Top_Right.Y loop
+            for X in Bottom_Left.X .. Top_Right.X loop
+               Plot (Img, (X, Y), Colour);
+            end loop;
+         end loop;
+      else
+         for Y in Bottom_Left.Y .. Top_Right.Y loop
+            if Y = Bottom_Left.Y or else Y = Top_Right.Y then
+               for X in  Bottom_Left.X .. Top_Right.X loop
+                  Plot (Img, (X, Y), Colour);
+               end loop;
+            else
+               Plot (Img, (Bottom_Left.X, Y), Colour);
+               Plot (Img, (Top_Right.X, Y), Colour);
+            end if;
+         end loop;
+      end if;
+   end Rect;
+
    procedure Fill_Bottom_Flat_Triangle (Img : in out Image_8;
                                         P1, P2, P3 : Point;
                                         Colour : RGB_8)

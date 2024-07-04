@@ -23,6 +23,7 @@ It is free to use, with no warranty, under the MIT license.
 * `Plot` a point on the image
 * `Fill` an entire image with a colour
 * `Line` draw a line between two `Point`s
+* `Rect` (filled or outline)
 * `Triangle` (filled or outline)
 * `Circle` (filled or outline)
 * `Char` draw a character using a simple built-in font

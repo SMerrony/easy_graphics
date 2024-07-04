@@ -23,6 +23,14 @@ procedure Tests is
       Write_PPM (Small_8bit_Img, "small_8bit_test_raw.ppm", Raw);
    end Test_Basics;
 
+   procedure Test_Rects is
+      Rects_Img : Image_8 := New_Image (-100, -50, 400, 300, BLACK);
+   begin
+      Rect (Rects_Img, (-20, -25), (100, 100), SILVER, Filled);
+      Rect (Rects_Img, (50, 50), (200, 150), MAGENTA, Outline);
+      Write_PPM (Rects_Img, "rectangles_raw.ppm");
+   end Test_Rects;
+
    procedure Test_Triangles is
       Triangles_Img   : Image_8 := New_Image (-200, -200, 200, 300, SILVER);
    begin
@@ -124,6 +132,7 @@ procedure Tests is
 begin
 
    Test_Basics;
+   Test_Rects;
    Test_Triangles;
    Test_Circles;
    Test_Graphs;

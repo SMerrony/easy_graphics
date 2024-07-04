@@ -79,6 +79,13 @@ package Easy_Graphics is
    --  Draw line from Start to Stop using Bresenham's algorithm.
    --  Shamelessly adapted from Rosetta Code task.
 
+   procedure Rect (Img : in out Image_8;
+                   Bottom_Left, Top_Right : Point;
+                   Colour : RGB_8;
+                   Fill   : Filled_Or_Outline);
+   --  Draw a horizontally-aligned rectangle on the image.
+   --  Optionally filled.
+
    procedure Triangle (Img        : in out Image_8;
                        P1, P2, P3 : Point;
                        Colour     : RGB_8;
