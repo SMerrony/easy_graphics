@@ -26,4 +26,8 @@ project Easy_Graphics is
       for Artifacts (".") use ("share");
    end Install;
 
+   package Documentation is
+      for Documentation_Dir use "html";
+   end Documentation;
+
 end Easy_Graphics;

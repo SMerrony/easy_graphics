@@ -3,42 +3,47 @@
 
 pragma Ada_2022;
 
+--  @summary
+--  Easy_Graphics is a simple library for generating graphical output from your Ada program.
+--
+--  @description
+--  Typical use cases for Easy_Graphics might be educational projects, prototyping,
+--  programming challenges, or
+--  simply when you want to visualise something quickly in a larger system.
+--  It is free to use, with no warranty, under the MIT license.
+
 package Easy_Graphics is
 
    SEM_VER : constant String := "0.1.0";  --  TODO Update on each release
 
    type Level_8  is mod 2 ** 8;
 
-   type RGB_8 is record
-       R, G, B : Level_8;
-   end record;
-
    type RGBA_8 is record
-      R, G, B, A : Level_8;
+       R, G, B, A : Level_8;
    end record;
 
    --  The Basic Standard HTML/CSS colours
-   BLACK   : constant RGB_8 := (0, 0, 0);
-   BLUE    : constant RGB_8 := (0, 0, 255);
-   CYAN    : constant RGB_8 := (0, 255, 255);
-   GREEN   : constant RGB_8 := (0, 128, 0);
-   GREY    : constant RGB_8 := (128, 128, 128);
-      GRAY    : constant RGB_8 := GREY;
-   LIME    : constant RGB_8 := (0, 255, 0);
-   MAGENTA : constant RGB_8 := (255, 0, 255);
-      FUCHSIA : constant RGB_8 := MAGENTA;
-   MAROON  : constant RGB_8 := (128, 0, 0);
-   NAVY    : constant RGB_8 := (0, 0, 128);
-   OLIVE   : constant RGB_8 := (128, 0, 128);
-   PURPLE  : constant RGB_8 := (128, 0, 128);
-   RED     : constant RGB_8 := (255, 0, 0);
-   SILVER  : constant RGB_8 := (192, 192, 192);
-   TEAL    : constant RGB_8 := (0, 128, 128);
-   WHITE   : constant RGB_8 := (255, 255, 255);
-   YELLOW  : constant RGB_8 := (255, 255, 0);
+   BLACK   : constant RGBA_8 := (0, 0, 0, 255);
+   BLUE    : constant RGBA_8 := (0, 0, 255, 255);
+   CYAN    : constant RGBA_8 := (0, 255, 255, 255);
+   GREEN   : constant RGBA_8 := (0, 128, 0, 255);
+   GREY    : constant RGBA_8 := (128, 128, 128, 255);
+   GRAY    : constant RGBA_8 := GREY;
+   LIME    : constant RGBA_8 := (0, 255, 0, 255);
+   MAGENTA : constant RGBA_8 := (255, 0, 255, 255);
+   FUCHSIA : constant RGBA_8 := MAGENTA;
+   MAROON  : constant RGBA_8 := (128, 0, 0, 255);
+   NAVY    : constant RGBA_8 := (0, 0, 128, 255);
+   OLIVE   : constant RGBA_8 := (128, 0, 128, 255);
+   PURPLE  : constant RGBA_8 := (128, 0, 128, 255);
+   RED     : constant RGBA_8 := (255, 0, 0, 255);
+   SILVER  : constant RGBA_8 := (192, 192, 192, 255);
+   TEAL    : constant RGBA_8 := (0, 128, 128, 255);
+   WHITE   : constant RGBA_8 := (255, 255, 255, 255);
+   YELLOW  : constant RGBA_8 := (255, 255, 0, 255);
 
-   function HSV_To_RGB (H, S, V : Float) return RGB_8;
-   --  Convert given HSV colour to RGB_8
+   function HSV_To_RGB (H, S, V : Float) return RGBA_8;
+   --  Convert given HSV colour to RGBA_8
 
    type Point is record
       X, Y : Integer;
@@ -47,10 +52,10 @@ package Easy_Graphics is
    type Image_Types is (Alpha_8, Non_Alpha_8);
 
    type Image_8  (<>) is private;
-   type Image_8A (<>) is private;
 
-   function New_Image (X_Min, Y_Min, X_Max, Y_Max : Integer; Colour : RGB_8) return Image_8;
-   --  Returns a new Image_8 with the specified bounds and colour.
+   function New_Image (X_Min, Y_Min, X_Max, Y_Max : Integer; Colour : RGBA_8) return Image_8;
+   --  Create a new Image_8.
+   --  @return a new Image_8 with the specified bounds and colour.
 
    function X_First (Img : Image_8) return Integer;
    function Y_First (Img : Image_8) return Integer;
@@ -66,36 +71,40 @@ package Easy_Graphics is
    type PPM_Type is (Plain, Raw);
    type Filled_Or_Outline is (Filled, Outline);
 
-   procedure Plot (Img : in out Image_8; Pt : Point; Colour : RGB_8);
+   procedure Plot (Img : in out Image_8; Pt : Point; Colour : RGBA_8);
    --  Sets a single pixel to the given colour.
    --  N.B. Does nothing if given coordinates are outside the image boundary.
 
-   procedure Fill (Img : in out Image_8; Colour : RGB_8);
+   procedure Set_Alpha (Img : in out Image_8; Pt : Point; Alpha : Level_8);
+   --  Changes the Alpha (transparency) value of the specified point.
+   --  N.B. Does nothing if given coordinates are outside the image boundary.
+
+   procedure Fill (Img : in out Image_8; Colour : RGBA_8);
    --  Fill given image with colour.
 
    procedure Line (Img : in out Image_8;
                    Start, Stop : Point;
-                   Colour : RGB_8);
+                   Colour : RGBA_8);
    --  Draw line from Start to Stop using Bresenham's algorithm.
    --  Shamelessly adapted from Rosetta Code task.
 
    procedure Rect (Img : in out Image_8;
                    Bottom_Left, Top_Right : Point;
-                   Colour : RGB_8;
+                   Colour : RGBA_8;
                    Fill   : Filled_Or_Outline);
    --  Draw a horizontally-aligned rectangle on the image.
    --  Optionally filled.
 
    procedure Triangle (Img        : in out Image_8;
                        P1, P2, P3 : Point;
-                       Colour     : RGB_8;
+                       Colour     : RGBA_8;
                        Fill       : Filled_Or_Outline);
    --  Draw an optionally filled triangle on the given image.
 
    procedure Circle (Img    : in out Image_8;
                      Centre : Point;
                      Radius : Positive;
-                     Colour : RGB_8;
+                     Colour : RGBA_8;
                      Fill   : Filled_Or_Outline);
    --  Draw an optionally filled circle using the given centre-point,
    --  radius, & colour using Bresenham's algorithm.
@@ -106,11 +115,11 @@ package Easy_Graphics is
                    Chr : Character;
                    Bottom_Left : Point;
                    Height, Width : Positive;
-                   Colour : RGB_8;
+                   Colour : RGBA_8;
                    Thickness : Weight := Normal);
    --  Draw a character on the image using the built-in 16-segment style font.
    --  The font is intended only for simple annotations and consists of (latin)
-   --  letter, numeric, and a few symbol characters.  Characters not in the 
+   --  letter, numeric, and a few symbol characters.  Characters not in the
    --  font will be displayed as spaces.
    --  It is suggested that Height := 2 * Width.
 
@@ -118,11 +127,11 @@ package Easy_Graphics is
                    S   : String;
                    Bottom_Left : Point;
                    Height, Width, Spacing : Positive;
-                   Colour : RGB_8;
+                   Colour : RGBA_8;
                    Thickness : Weight := Normal);
    --  Draw a string on the image using the 16-segment style built-in font.
-   --  The font is intended only for simple annotations and consists of (latin) 
-   --  letter, numeric, and a few symbol characters.  Characters not in the 
+   --  The font is intended only for simple annotations and consists of (latin)
+   --  letter, numeric, and a few symbol characters.  Characters not in the
    --  font will be displayed as spaces.
    --  The _character_ height and width must be specified and it is suggested
    --  that Height := 2 * Width.
@@ -130,6 +139,7 @@ package Easy_Graphics is
 
    procedure Write_PPM (Img : Image_8;  Filename : String; Plain_Raw : PPM_Type := Raw);
    --  Write an image as a PPM file to disk using plain (ASCII) or raw (mostly binary) format.
+   --  Alpha (transparency) values are ignored as they are not supported by this format.
    --  Raw PPMs are significantly smaller than plain, but there is still no compression whatsoever.
 
    --  Turtle Graphics... ----
@@ -140,22 +150,21 @@ package Easy_Graphics is
    procedure Home      (Turtle : in out Turtle_Rec);
    procedure Pen_Up    (Turtle : in out Turtle_Rec);
    procedure Pen_Down  (Turtle : in out Turtle_Rec);
-   procedure Pen_Color (Turtle : in out Turtle_Rec; Colour : RGB_8);
-   procedure Forward   (Turtle : in out Turtle_Rec; Steps : Natural);
+   procedure Pen_Color (Turtle : in out Turtle_Rec; Colour : RGBA_8);
+   procedure Forward   (Turtle : in out Turtle_Rec; Steps  : Natural);
    procedure Left      (Turtle : in out Turtle_Rec; Degrees : Natural);
    procedure Right     (Turtle : in out Turtle_Rec; Degrees : Natural);
    procedure Turn_To   (Turtle : in out Turtle_Rec; Degrees : Natural);
 
 private
-   type Image_8  is array (Integer range <>, Integer range <>) of RGB_8;
-   type Image_8A is array (Integer range <>, Integer range <>) of RGBA_8;
+   type Image_8  is array (Integer range <>, Integer range <>) of RGBA_8;
 
    type Turtle_Rec is tagged record
       Image     : access Image_8;
       Position  : Point;
       Direction : Integer;
       Pen_Down  : Boolean;
-      Colour    : RGB_8;
+      Colour    : RGBA_8;
    end record;
 
 
@@ -268,8 +277,8 @@ private
 
    procedure Fill_Bottom_Flat_Triangle (Img : in out Image_8;
                                         P1, P2, P3 : Point;
-                                        Colour : RGB_8);
+                                        Colour : RGBA_8);
    procedure Fill_Top_Flat_Triangle (Img : in out Image_8;
                                      P1, P2, P3 : Point;
-                                     Colour : RGB_8);
+                                     Colour : RGBA_8);
 end Easy_Graphics;

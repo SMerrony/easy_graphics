@@ -8,3 +8,4 @@ maintainers-logins = ["SMerrony"]
 licenses = "MIT OR Apache-2.0 WITH LLVM-exception"
 website = ""
 tags = ["graphics", "image", "ppm"]
+

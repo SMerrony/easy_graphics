@@ -13,9 +13,9 @@ package body Easy_Graphics is
    package ASIO renames Ada.Streams.Stream_IO;
    package ATIO renames Ada.Text_IO;
 
-   function HSV_To_RGB (H, S, V : Float) return RGB_8 is
+   function HSV_To_RGB (H, S, V : Float) return RGBA_8 is
       RR, GG, BB : Float;
-      RGB        : RGB_8;
+      RGB        : RGBA_8;
       Hue_Int    : constant Float := Float'Floor (H);
       Hue_Frac   : constant Float := H - Hue_Int;
       P          : constant Float := V - S;
@@ -34,10 +34,11 @@ package body Easy_Graphics is
       RGB.R := Level_8 (Integer (Float'Floor (RR * 255.0)));
       RGB.G := Level_8 (Integer (Float'Floor (GG * 255.0)));
       RGB.B := Level_8 (Integer (Float'Floor (BB * 255.0)));
+      RGB.A := 255;
       return RGB;
    end HSV_To_RGB;
 
-   function New_Image (X_Min, Y_Min, X_Max, Y_Max : Integer; Colour : RGB_8) return Image_8 is
+   function New_Image (X_Min, Y_Min, X_Max, Y_Max : Integer; Colour : RGBA_8) return Image_8 is
       Img : Image_8 (X_Min .. X_Max, Y_Min .. Y_Max);
    begin
       Fill (Img, Colour);
@@ -48,7 +49,7 @@ package body Easy_Graphics is
       Turtle : Turtle_Rec;
    begin
       Turtle.Image     := Img_Acc;
-      Turtle.Position  := (Img_Acc'First (1) + (Img_Acc'Last (1) - Img_Acc'First (1)) / 2, 
+      Turtle.Position  := (Img_Acc'First (1) + (Img_Acc'Last (1) - Img_Acc'First (1)) / 2,
                            Img_Acc'First (2) + (Img_Acc'Last (2) - Img_Acc'First (2)) / 2);
       Turtle.Direction := 0; --  "North"
       Turtle.Pen_Down  := False;
@@ -57,13 +58,13 @@ package body Easy_Graphics is
    end New_Turtle;
 
    procedure Home (Turtle : in out Turtle_Rec) is
-      From_Pos : Point := Turtle.Position;
-      New_Pos  : Point := (Turtle.Image'First (1) + (Turtle.Image'Last (1) - Turtle.Image'First (1)) / 2, 
+      From_Pos : constant Point := Turtle.Position;
+      New_Pos  : constant Point := (Turtle.Image'First (1) + (Turtle.Image'Last (1) - Turtle.Image'First (1)) / 2,
                            Turtle.Image'First (2) + (Turtle.Image'Last (2) - Turtle.Image'First (2)) / 2);
    begin
       Turtle.Position  := New_Pos;
       if Turtle.Pen_Down then
-         Line (Turtle.Image.All, From_Pos, Turtle.Position, Turtle.Colour);
+         Line (Turtle.Image.all, From_Pos, Turtle.Position, Turtle.Colour);
       end if;
    end Home;
 
@@ -77,13 +78,13 @@ package body Easy_Graphics is
       Turtle.Pen_Down := True;
    end Pen_Down;
 
-   procedure Pen_Color (Turtle : in out Turtle_Rec; Colour : RGB_8) is
+   procedure Pen_Color (Turtle : in out Turtle_Rec; Colour : RGBA_8) is
    begin
       Turtle.Colour := Colour;
    end Pen_Color;
 
-   procedure Forward (Turtle :in out Turtle_Rec; Steps : Natural) is
-      From_Pos     : Point := Turtle.Position;
+   procedure Forward (Turtle : in out Turtle_Rec; Steps : Natural) is
+      From_Pos     : constant Point := Turtle.Position;
       New_X, New_Y : Integer;
    begin
       New_X := From_Pos.X + Integer (Float (Steps) * Sin (Float (Turtle.Direction), 360.0));
@@ -91,21 +92,21 @@ package body Easy_Graphics is
       Turtle.Position := (New_X, New_Y);
       --  Ada.Text_IO.Put_Line ("DEBUG: Old Posn" & From_Pos'Image & " New Posn" & Turtle.Position'Image);
       if Turtle.Pen_Down then
-         Line (Turtle.Image.All, From_Pos, Turtle.Position, Turtle.Colour);
+         Line (Turtle.Image.all, From_Pos, Turtle.Position, Turtle.Colour);
       end if;
    end Forward;
 
-   procedure Left (Turtle :in out Turtle_Rec; Degrees : Natural) is
+   procedure Left (Turtle : in out Turtle_Rec; Degrees : Natural) is
    begin
       Turtle.Direction := @ - Degrees;
    end Left;
 
-   procedure Right (Turtle :in out Turtle_Rec; Degrees : Natural) is
+   procedure Right (Turtle : in out Turtle_Rec; Degrees : Natural) is
    begin
       Turtle.Direction := @ + Degrees;
    end Right;
 
-   procedure Turn_To (Turtle :in out Turtle_Rec; Degrees : Natural) is
+   procedure Turn_To (Turtle : in out Turtle_Rec; Degrees : Natural) is
    begin
       Turtle.Direction := Degrees;
    end Turn_To;
@@ -133,19 +134,26 @@ package body Easy_Graphics is
       return Ords;
    end Ys;
 
-   procedure Plot (Img : in out Image_8; Pt : Point; Colour : RGB_8) is
+   procedure Plot (Img : in out Image_8; Pt : Point; Colour : RGBA_8) is
    begin
       if Pt.X in Img'Range (1) and then Pt.Y in Img'Range (2) then
          Img (Pt.X, Pt.Y) := Colour;
       end if;
    end Plot;
 
-   procedure Fill (Img : in out Image_8; Colour : RGB_8) is
+   procedure Set_Alpha (Img : in out Image_8; Pt : Point; Alpha : Level_8) is
+   begin
+      if Pt.X in Img'Range (1) and then Pt.Y in Img'Range (2) then
+         Img (Pt.X, Pt.Y).A := Alpha;
+      end if;
+   end Set_Alpha;
+
+   procedure Fill (Img : in out Image_8; Colour : RGBA_8) is
    begin
       Img := [others => [others => Colour]];
    end Fill;
 
-   procedure Line (Img : in out Image_8; Start, Stop : Point; Colour : RGB_8) is
+   procedure Line (Img : in out Image_8; Start, Stop : Point; Colour : RGBA_8) is
       DX  : constant Float := abs Float (Stop.X - Start.X);
       DY  : constant Float := abs Float (Stop.Y - Start.Y);
       Err : Float;
@@ -188,7 +196,7 @@ package body Easy_Graphics is
 
    procedure Rect (Img : in out Image_8;
                    Bottom_Left, Top_Right : Point;
-                   Colour : RGB_8;
+                   Colour : RGBA_8;
                    Fill   : Filled_Or_Outline)
    is
    begin
@@ -214,7 +222,7 @@ package body Easy_Graphics is
 
    procedure Fill_Bottom_Flat_Triangle (Img : in out Image_8;
                                         P1, P2, P3 : Point;
-                                        Colour : RGB_8)
+                                        Colour : RGBA_8)
    is
    begin
       --  Ada.Text_IO.Put_Line ("Fill Bottom Flat called with " & P1'Image & ", " & P2'Image & ", " & P3'Image);
@@ -225,7 +233,7 @@ package body Easy_Graphics is
 
    procedure Fill_Top_Flat_Triangle (Img : in out Image_8;
                                      P1, P2, P3 : Point;
-                                     Colour : RGB_8)
+                                     Colour : RGBA_8)
    is
    begin
       --  Ada.Text_IO.Put_Line ("Fill Top Flat called with " & P1'Image & ", " & P2'Image & ", " & P3'Image);
@@ -243,7 +251,7 @@ package body Easy_Graphics is
 
    procedure Triangle (Img        : in out Image_8;
                        P1, P2, P3 : Point;
-                       Colour     : RGB_8;
+                       Colour     : RGBA_8;
                        Fill       : Filled_Or_Outline) is
    begin
       if Fill = Outline then
@@ -281,7 +289,7 @@ package body Easy_Graphics is
    procedure Circle (Img    : in out Image_8;
                      Centre : Point;
                      Radius : Positive;
-                     Colour : RGB_8;
+                     Colour : RGBA_8;
                      Fill   : Filled_Or_Outline)
    is
       X : Integer := -Radius;
@@ -317,7 +325,7 @@ package body Easy_Graphics is
                    Chr : Character;
                    Bottom_Left : Point;
                    Height, Width : Positive;
-                   Colour : RGB_8;
+                   Colour : RGBA_8;
                    Thickness : Weight := Normal)
    is
       Seg_16_Bits : constant Seg_16_T := Seg_16_Font (Chr);
@@ -362,7 +370,7 @@ package body Easy_Graphics is
                   S   : String;
                   Bottom_Left : Point;
                   Height, Width, Spacing : Positive;
-                  Colour : RGB_8;
+                  Colour : RGBA_8;
                   Thickness : Weight := Normal)
    is
       X : Integer := Bottom_Left.X;

@@ -12,15 +12,17 @@ It is free to use, with no warranty, under the MIT license.
 * Image output as portable PPM files (other formats to follow)
 * Images of any size using whatever (integer) coordinate ranges you like
 * Simple set of graphics primitives provided
-* 24-bit colour, some basic colours predefined as constants
+* Basic turtle graphics are supported.
+* Images are 24-bit colour + 8-bit alpha, some basic colours predefined as constants
 
 ### Utility Subprograms
 * `New_Image` create a new image (canvas), prefilled with a colour
 * `HSV_To_RGB` convert colour values
-* `Write_PPM` create raw or plain PPM file from image
+* `Write_PPM` create raw or plain PPM file from image, Alpha is ignored
 
 ### Drawing Primitives
 * `Plot` a point on the image
+* `Set_Alpha` changes the transparenct of a point
 * `Fill` an entire image with a colour
 * `Line` draw a line between two `Point`s
 * `Rect` (filled or outline)
@@ -30,7 +32,6 @@ It is free to use, with no warranty, under the MIT license.
 * `Text` draw a string
 
 ### Turtle Graphics
-Basic turtle graphics are supported.
 * `New_Turtle` creates a turtle for an image
 * `Home` centres the turtle
 * `Pen_Up`, `Pen_Down` and `Pen_Color`
