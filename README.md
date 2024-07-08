@@ -13,16 +13,18 @@ It is free to use, with no warranty, under the MIT license.
 * Images of any size using whatever (integer) coordinate ranges you like
 * Simple set of graphics primitives provided
 * Basic turtle graphics are supported.
-* Images are 24-bit colour + 8-bit alpha, some basic colours predefined as constants
+* Images are 24-bit colour + 8-bit alpha
+* Basic (HTML/CSS) colours predefined as constants, as is TRANSPARENT
 
 ### Utility Subprograms
-* `New_Image` create a new image (canvas), prefilled with a colour
+* `New_Image` create a new image ("canvas"), prefilled with a colour or transparent
 * `HSV_To_RGB` convert colour values
-* `Write_PPM` create raw or plain PPM file from image, Alpha is ignored
+* `Write_PPM` create raw or plain NetPBM PPM file from image, Alpha is ignored
+* `Write_PAM` create NetPBM PAM file from image, includes transparency.  N.B. Convert to PNG with `convert img.pam img.png` or view directly with `pqiv`
 
 ### Drawing Primitives
 * `Plot` a point on the image
-* `Set_Alpha` changes the transparenct of a point
+* `Set_Alpha` changes the transparency of a point
 * `Fill` an entire image with a colour
 * `Line` draw a line between two `Point`s
 * `Rect` (filled or outline)

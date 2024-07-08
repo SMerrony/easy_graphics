@@ -387,6 +387,7 @@ package body Easy_Graphics is
       Plain_PPM_File : ATIO.File_Type;
       Raw_PPM_File   : ASIO.File_Type;
       Raw_Stream     : Stream_Access;
+      NL             : constant Character := Character'Val (10);
    begin
       case Plain_Raw is
          when Plain =>
@@ -398,14 +399,10 @@ package body Easy_Graphics is
          when Raw =>
             ASIO.Create (Raw_PPM_File, ASIO.Out_File, Filename);
             Raw_Stream := Stream (Raw_PPM_File);
-            String'Write (Raw_Stream, "P6");
-            Character'Write (Raw_Stream, Character'Val (10));
-            String'Write (Raw_Stream, "# Created with Easy_Graphics " & SEM_VER);
-            Character'Write (Raw_Stream, Character'Val (10));
-            String'Write (Raw_Stream, Img'Length (1)'Image & Img'Length (2)'Image);
-            Character'Write (Raw_Stream, Character'Val (10));
-            String'Write (Raw_Stream, "255");
-            Character'Write (Raw_Stream, Character'Val (10));
+            String'Write (Raw_Stream, "P6" & NL);
+            String'Write (Raw_Stream, "# Created with Easy_Graphics " & SEM_VER & NL);
+            String'Write (Raw_Stream, Img'Length (1)'Image & Img'Length (2)'Image & NL);
+            String'Write (Raw_Stream, "255" & NL);
       end case;
       for Y in reverse Img'Range (2) loop
          for X in Img'Range (1) loop
@@ -425,4 +422,29 @@ package body Easy_Graphics is
       end case;
    end Write_PPM;
 
+   procedure Write_PAM (Img : Image_8;  Filename : String) is
+      PAM_File   : ASIO.File_Type;
+      PAM_Stream : Stream_Access;
+      NL         : constant Character := Character'Val (10);
+   begin
+      ASIO.Create (PAM_File, ASIO.Out_File, Filename);
+      PAM_Stream := Stream (PAM_File);
+      String'Write (PAM_Stream, "P7" & NL);
+      String'Write (PAM_Stream, "# Created with Easy_Graphics " & SEM_VER & NL);
+      String'Write (PAM_Stream, "WIDTH" & Img'Length (1)'Image & NL);
+      String'Write (PAM_Stream, "HEIGHT" & Img'Length (2)'Image & NL);
+      String'Write (PAM_Stream, "DEPTH 4" & NL);
+      String'Write (PAM_Stream, "MAXVAL 255" & NL);
+      String'Write (PAM_Stream, "TUPLTYPE RGB_ALPHA" & NL);
+      String'Write (PAM_Stream, "ENDHDR" & NL);
+      for Y in reverse Img'Range (2) loop
+         for X in Img'Range (1) loop
+            Level_8'Write (PAM_Stream, Img (X, Y).R);
+            Level_8'Write (PAM_Stream, Img (X, Y).G);
+            Level_8'Write (PAM_Stream, Img (X, Y).B);
+            Level_8'Write (PAM_Stream, Img (X, Y).A);
+         end loop;
+      end loop;
+      ASIO.Close (PAM_File);
+   end Write_PAM;
 end Easy_Graphics;

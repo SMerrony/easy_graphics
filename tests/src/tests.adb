@@ -152,6 +152,13 @@ procedure Tests is
       Write_PPM (Turtle_Img, "turtle_test.ppm");
    end Test_Turtle;
 
+   procedure Test_Transparent_PAM is
+      PAM_Img : Image_8 := New_Image (-100, -100, 100, 100, TRANSPARENT);
+   begin
+      Circle (PAM_Img, (0, 0), 75, CYAN, Filled);
+      Write_PAM (PAM_Img, "transparent_circle.pam");
+   end Test_Transparent_PAM;
+
 begin
 
    Test_Basics;
@@ -162,5 +169,6 @@ begin
    Test_HSV_Colour_Wheel;
    Test_Text;
    Test_Turtle;
+   Test_Transparent_PAM;
 
 end Tests;

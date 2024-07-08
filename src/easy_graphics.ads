@@ -41,6 +41,8 @@ package Easy_Graphics is
    TEAL    : constant RGBA_8 := (0, 128, 128, 255);
    WHITE   : constant RGBA_8 := (255, 255, 255, 255);
    YELLOW  : constant RGBA_8 := (255, 255, 0, 255);
+   --  Totally transparent colour...
+   TRANSPARENT : constant RGBA_8 := (0, 0, 0, 0);
 
    function HSV_To_RGB (H, S, V : Float) return RGBA_8;
    --  Convert given HSV colour to RGBA_8
@@ -142,6 +144,11 @@ package Easy_Graphics is
    --  Alpha (transparency) values are ignored as they are not supported by this format.
    --  Raw PPMs are significantly smaller than plain, but there is still no compression whatsoever.
 
+   procedure Write_PAM (Img : Image_8;  Filename : String);
+   --  Write an image as a PAM file to disk using plain (ASCII) or raw (mostly binary) format.
+   --  Alpha (transparency) values are included in the image.
+   --  There is no compression whatsoever.
+
    --  Turtle Graphics... ----
    type Turtle_Rec is tagged private;
 
@@ -166,7 +173,6 @@ private
       Pen_Down  : Boolean;
       Colour    : RGBA_8;
    end record;
-
 
    type Seg_16_T is mod 2 ** 16;
    type Seg_16_Font_T is array (Character range Character'Val (32) .. Character'Val (255)) of Seg_16_T;
