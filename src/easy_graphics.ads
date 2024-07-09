@@ -149,6 +149,11 @@ package Easy_Graphics is
    --  Alpha (transparency) values are included in the image.
    --  There is no compression whatsoever.
 
+   procedure Write_GIF (Img : Image_8;  Filename : String);
+   --  Write a (currently uncompressed) GIF file to disk.
+   --  Currently restricted to images with fewer than 128 colours.
+   --  Currently not exporting transparency TODO
+
    --  Turtle Graphics... ----
    type Turtle_Rec is tagged private;
 
@@ -162,6 +167,8 @@ package Easy_Graphics is
    procedure Left      (Turtle : in out Turtle_Rec; Degrees : Natural);
    procedure Right     (Turtle : in out Turtle_Rec; Degrees : Natural);
    procedure Turn_To   (Turtle : in out Turtle_Rec; Degrees : Natural);
+
+   Too_Many_Colours : exception;
 
 private
    type Image_8  is array (Integer range <>, Integer range <>) of RGBA_8;

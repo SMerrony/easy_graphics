@@ -18,9 +18,11 @@ It is free to use, with no warranty, under the MIT license.
 
 ### Utility Subprograms
 * `New_Image` create a new image ("canvas"), prefilled with a colour or transparent
-* `HSV_To_RGB` convert colour values
 * `Write_PPM` create raw or plain NetPBM PPM file from image, Alpha is ignored
+* `Write_GIF` create GIF file - only partially implemented at the moment
 * `Write_PAM` create NetPBM PAM file from image, includes transparency.  N.B. Convert to PNG with `convert img.pam img.png` or view directly with `pqiv`
+* `HSV_To_RGB` convert colour values
+
 
 ### Drawing Primitives
 * `Plot` a point on the image

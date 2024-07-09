@@ -21,6 +21,7 @@ procedure Tests is
       end loop;
       Write_PPM (Small_8bit_Img, "small_8bit_test_plain.ppm", Plain);
       Write_PPM (Small_8bit_Img, "small_8bit_test_raw.ppm", Raw);
+      Write_GIF (Small_8bit_Img, "small_8bit_test.gif");
    end Test_Basics;
 
    procedure Test_Rects is
@@ -159,6 +160,14 @@ procedure Tests is
       Write_PAM (PAM_Img, "transparent_circle.pam");
    end Test_Transparent_PAM;
 
+   procedure Test_GIF is
+      Triangles_Img   : Image_8 := New_Image (-200, -200, 200, 300, SILVER);
+   begin
+      Triangle (Triangles_Img, (0, 0), (100, 0), (50, 100), YELLOW, Outline);
+      Triangle (Triangles_Img, (-150, 150), (0, 0), (100, 0), BLUE, Filled);
+      Triangle (Triangles_Img, (50, 0), (150, 100), (190, -100), RED, Filled);
+      Write_GIF (Triangles_Img, "triangles_test.gif");
+   end Test_GIF;
 begin
 
    Test_Basics;
@@ -170,5 +179,6 @@ begin
    Test_Text;
    Test_Turtle;
    Test_Transparent_PAM;
+   Test_GIF;
 
 end Tests;

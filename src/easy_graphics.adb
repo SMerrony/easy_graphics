@@ -3,10 +3,13 @@
 
 pragma Ada_2022;
 
+with Ada.Containers.Vectors;
 with Ada.Numerics;                      use Ada.Numerics;
 with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
 with Ada.Streams.Stream_IO;             use  Ada.Streams.Stream_IO;
 with Ada.Text_IO;
+
+with Interfaces;
 
 package body Easy_Graphics is
 
@@ -447,4 +450,106 @@ package body Easy_Graphics is
       end loop;
       ASIO.Close (PAM_File);
    end Write_PAM;
+
+   procedure Write_GIF (Img : Image_8;  Filename : String) is
+      use Ada.Containers;
+      use Interfaces;
+      GIF_File   : ASIO.File_Type;
+      GIF_Stream : Stream_Access;
+
+      --  function Lower_Byte (U16 : Unsigned_16) return Unsigned_8 is
+      --     (Unsigned_8 (U16 and 16#00ff#));
+      --  function Upper_Byte (U16 : Unsigned_16) return Unsigned_8 is
+      --     (Unsigned_8 (Shift_Right (U16 and 16#ff00#, 8)));
+      --  function Swap_Bytes (U16 : Unsigned_16) return Unsigned_16 is
+      --     (Shift_Right (U16 and 16#ff00#, 8) or Shift_Left (U16 and 16#00ff#, 8));
+
+      function RGBA_8_To_RGB_24 (RGBA8 : RGBA_8) return Unsigned_24 is
+         ((Unsigned_24 (RGBA8.R) * (2 ** 16)) +
+          (Unsigned_24 (RGBA8.G) * (2 ** 8)) +
+          Unsigned_24 (RGBA8.B));
+
+      package Colour_Vectors is new Ada.Containers.Vectors (Positive, Unsigned_24);
+      Used_Colors : Colour_Vectors.Vector;
+      Colour_24 : Unsigned_24;
+      MAX_UNCOMPRESSED_COLOURS : constant Integer := 128;
+      BLK_SIZE : constant Integer := 120;
+      Image_Block : array (1 .. BLK_SIZE) of Unsigned_8;
+      Blk_Ix : Positive;
+   begin
+      ASIO.Create (GIF_File, ASIO.Out_File, Filename);
+      GIF_Stream := Stream (GIF_File);
+      String'Write (GIF_Stream, "GIF89a");
+      Unsigned_16'Write (GIF_Stream, Unsigned_16 (Img'Length (1)));
+      Unsigned_16'Write (GIF_Stream, Unsigned_16 (Img'Length (2)));
+      Unsigned_8'Write (GIF_Stream, 16#f6#);  --  7-bit colour palette, with GCT
+      Unsigned_8'Write (GIF_Stream, 0);       --  bg colour
+      Unsigned_8'Write (GIF_Stream, 0);       --  pixel aspect ratio
+      for Y in reverse Img'Range (2) loop
+         for X in Img'Range (1) loop
+            Colour_24 := RGBA_8_To_RGB_24 (Img (X, Y));
+            if not Used_Colors.Contains (Colour_24) then
+               --  ATIO.Put_Line ("DEBUG: Adding colour: " & Colour_24'Image);
+               Used_Colors.Append (Colour_24);
+            end if;
+         end loop;
+      end loop;
+      --  For now, we give up if there are more than 128 colours in the Image
+      if Integer (Used_Colors.Length) > MAX_UNCOMPRESSED_COLOURS then
+         ASIO.Close (GIF_File);
+         raise Too_Many_Colours with
+            "GIF export currently limted to 128 colours, image has" &
+            Used_Colors.Length'Image;
+      end if;
+      --  ATIO.Put_Line ("DEBUG: Colours found: " & Used_Colors.Length'Image);
+      --  Write pallette
+      for C in 1 .. Used_Colors.Length loop
+         --  Unsigned_24'Write (GIF_Stream, Used_Colors (Positive (C)));
+         Unsigned_8'Write (GIF_Stream, Unsigned_8 (Used_Colors (Positive (C)) / (2 ** 16)));
+         Unsigned_8'Write (GIF_Stream, Unsigned_8 ((Used_Colors (Positive (C)) and 16#00ff00#) / (2 ** 8)));
+         Unsigned_8'Write (GIF_Stream, Unsigned_8 ((Used_Colors (Positive (C)) and 16#0000ff#)));
+      end loop;
+      for C in Integer (Used_Colors.Length) + 1 .. MAX_UNCOMPRESSED_COLOURS loop
+         Unsigned_8'Write (GIF_Stream, 0);
+         Unsigned_8'Write (GIF_Stream, 0);
+         Unsigned_8'Write (GIF_Stream, 0);
+      end loop;
+      --  No GCE for now
+      --  Image descriptor
+      Unsigned_8'Write  (GIF_Stream, 16#2c#);  --  ASCII comma
+      Unsigned_32'Write (GIF_Stream, 0);       --  Top-left coordinates
+      Unsigned_16'Write (GIF_Stream, Unsigned_16 (Img'Length (1)));
+      Unsigned_16'Write (GIF_Stream, Unsigned_16 (Img'Length (2)));
+      Unsigned_8'Write  (GIF_Stream, 0);       --  No local colour table
+      --  Write an UNCOMPRESSED image
+      Unsigned_8'Write  (GIF_Stream, 7);       --  7-bits-per-colour => 8-bit pixels
+      Image_Block (1) := Unsigned_8 (BLK_SIZE) - 1;
+      Image_Block (2) := 16#80#;  --  CLEAR
+      --  Image_Block (BLK_SIZE) := 16#81#;
+      Blk_Ix := 3;
+      for Y in reverse Img'Range (2) loop
+         for X in Img'Range (1) loop
+            Image_Block (Blk_Ix) := Unsigned_8 (Used_Colors.Find_Index (RGBA_8_To_RGB_24 (Img (X, Y)))) - 1;
+            Blk_Ix := Blk_Ix + 1;
+            if Blk_Ix > BLK_SIZE then
+               for B of Image_Block loop  --  write out complete block
+                  Unsigned_8'Write (GIF_Stream, B);
+               end loop;
+               Blk_Ix := 3;
+            end if;
+         end loop;
+      end loop;
+      --  ATIO.Put_Line ("DEBUG: After main loop Blk_Ix: " & Blk_Ix'Image);
+      if Blk_Ix /= 3 then
+         Image_Block (1) := Unsigned_8 (Blk_Ix) - 1;
+         for B in 1 .. Blk_Ix loop  --  write out partial block
+            Unsigned_8'Write (GIF_Stream, Image_Block (B));
+         end loop;
+      end if;
+      Unsigned_8'Write  (GIF_Stream, 16#81#);
+      Unsigned_8'Write  (GIF_Stream, 0);
+      Unsigned_8'Write  (GIF_Stream, 16#3b#);
+      ASIO.Close (GIF_File);
+   end Write_GIF;
+
 end Easy_Graphics;
