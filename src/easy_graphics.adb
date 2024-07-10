@@ -41,8 +41,8 @@ package body Easy_Graphics is
       return RGB;
    end HSV_To_RGB;
 
-   function New_Image (X_Min, Y_Min, X_Max, Y_Max : Integer; Colour : RGBA_8) return Image_8 is
-      Img : Image_8 (X_Min .. X_Max, Y_Min .. Y_Max);
+   function New_Image (Bottom_Left, Top_Right: Point; Colour : RGBA_8) return Image_8 is
+      Img : Image_8 (Bottom_Left.X .. Top_Right.X, Bottom_Left.Y .. Top_Right.Y);
    begin
       Fill (Img, Colour);
       return Img;
@@ -326,44 +326,63 @@ package body Easy_Graphics is
 
    procedure Char (Img : in out Image_8;
                    Chr : Character;
-                   Bottom_Left : Point;
+                   Baseline : Point;
                    Height, Width : Positive;
                    Colour : RGBA_8;
                    Thickness : Weight := Normal)
    is
       Seg_16_Bits : constant Seg_16_T := Seg_16_Font (Chr);
-      Top_Left  : constant Point := (Bottom_Left.X,               Bottom_Left.Y + Height);
-      Top_Mid   : constant Point := (Bottom_Left.X + (Width / 2), Bottom_Left.Y + Height);
-      Top_Right : constant Point := (Bottom_Left.X + Width,       Bottom_Left.Y + Height);
-      Mid_Left  : constant Point := (Bottom_Left.X,               Bottom_Left.Y + (Height / 2));
-      Mid_Mid   : constant Point := (Bottom_Left.X + (Width / 2), Bottom_Left.Y + (Height / 2));
-      Mid_Right : constant Point := (Bottom_Left.X + Width,       Bottom_Left.Y + (Height / 2));
-      Bot_Mid   : constant Point := (Bottom_Left.X + (Width / 2), Bottom_Left.Y);
-      Bot_Right : constant Point := (Bottom_Left.X + Width,       Bottom_Left.Y);
+      Anchor    : Point := Baseline;
+      Adj_Ht    : Positive := Height;
+      Top_Left, Top_Mid, Top_Right, Mid_Left, Mid_Mid, Mid_Right, Bot_Mid, Bot_Right : Point;
+      subtype Descenders is Character with 
+         Static_Predicate => Descenders in 'g' | 'j' | 'p' | 'q' | 'y';
+      subtype Squashers is Character with 
+         Static_Predicate => Squashers in 'a' | 'e' | 's' | 'x';   
    begin
-      if (Seg_16_Bits and SEG_1)  /= 0 then Line (Img, Top_Left, Top_Mid, Colour); end if;
-      if (Seg_16_Bits and SEG_2)  /= 0 then Line (Img, Top_Right, Top_Mid, Colour); end if;
-      if (Seg_16_Bits and SEG_3)  /= 0 then Line (Img, Top_Left, Mid_Left, Colour); end if;
-      if (Seg_16_Bits and SEG_4)  /= 0 then Line (Img, Top_Left, Mid_Mid, Colour); end if;
-      if (Seg_16_Bits and SEG_5)  /= 0 then Line (Img, Top_Mid, Mid_Mid, Colour); end if;
-      if (Seg_16_Bits and SEG_6)  /= 0 then Line (Img, Top_Right, Mid_Mid, Colour); end if;
-      if (Seg_16_Bits and SEG_7)  /= 0 then Line (Img, Top_Right, Mid_Right, Colour); end if;
-      if (Seg_16_Bits and SEG_8)  /= 0 then Line (Img, Mid_Left, Mid_Mid, Colour); end if;
-      if (Seg_16_Bits and SEG_9)  /= 0 then Line (Img, Mid_Mid, Mid_Right, Colour); end if;
-      if (Seg_16_Bits and SEG_10) /= 0 then Line (Img, Mid_Left, Bottom_Left, Colour); end if;
-      if (Seg_16_Bits and SEG_11) /= 0 then Line (Img, Mid_Mid, Bottom_Left, Colour); end if;
-      if (Seg_16_Bits and SEG_12) /= 0 then Line (Img, Mid_Mid, Bot_Mid, Colour); end if;
-      if (Seg_16_Bits and SEG_13) /= 0 then Line (Img, Mid_Mid, Bot_Right, Colour); end if;
-      if (Seg_16_Bits and SEG_14) /= 0 then Line (Img, Mid_Right, Bot_Right, Colour); end if;
-      if (Seg_16_Bits and SEG_15) /= 0 then Line (Img, Bottom_Left, Bot_Mid, Colour); end if;
-      if (Seg_16_Bits and SEG_16) /= 0 then Line (Img, Bot_Mid, Bot_Right, Colour); end if;
+      --  special case for full-stop
+      if Chr = '.' then
+         Circle (Img, (Baseline.X + (Width / 2), Baseline.Y + (Width / 4)), Width / 4, Colour, Filled);
+      else
+         --  adjust lower-case descenders and squashers
+         if Chr in Descenders then
+            Anchor.Y := @ - (Height / 2);
+         end if;
+         if Chr in Squashers then
+            Adj_Ht := @ / 2;
+         end if;
+         Top_Left  := (Anchor.X,               Anchor.Y + Adj_Ht);
+         Top_Mid   := (Anchor.X + (Width / 2), Anchor.Y + Adj_Ht);
+         Top_Right := (Anchor.X + Width,       Anchor.Y + Adj_Ht);
+         Mid_Left  := (Anchor.X,               Anchor.Y + (Adj_Ht / 2));
+         Mid_Mid   := (Anchor.X + (Width / 2), Anchor.Y + (Adj_Ht / 2));
+         Mid_Right := (Anchor.X + Width,       Anchor.Y + (Adj_Ht / 2));
+         Bot_Mid   := (Anchor.X + (Width / 2), Anchor.Y);
+         Bot_Right := (Anchor.X + Width,       Anchor.Y);
+         if (Seg_16_Bits and SEG_1)  /= 0 then Line (Img, Top_Left, Top_Mid, Colour); end if;
+         if (Seg_16_Bits and SEG_2)  /= 0 then Line (Img, Top_Right, Top_Mid, Colour); end if;
+         if (Seg_16_Bits and SEG_3)  /= 0 then Line (Img, Top_Left, Mid_Left, Colour); end if;
+         if (Seg_16_Bits and SEG_4)  /= 0 then Line (Img, Top_Left, Mid_Mid, Colour); end if;
+         if (Seg_16_Bits and SEG_5)  /= 0 then Line (Img, Top_Mid, Mid_Mid, Colour); end if;
+         if (Seg_16_Bits and SEG_6)  /= 0 then Line (Img, Top_Right, Mid_Mid, Colour); end if;
+         if (Seg_16_Bits and SEG_7)  /= 0 then Line (Img, Top_Right, Mid_Right, Colour); end if;
+         if (Seg_16_Bits and SEG_8)  /= 0 then Line (Img, Mid_Left, Mid_Mid, Colour); end if;
+         if (Seg_16_Bits and SEG_9)  /= 0 then Line (Img, Mid_Mid, Mid_Right, Colour); end if;
+         if (Seg_16_Bits and SEG_10) /= 0 then Line (Img, Mid_Left, Anchor, Colour); end if;
+         if (Seg_16_Bits and SEG_11) /= 0 then Line (Img, Mid_Mid, Anchor, Colour); end if;
+         if (Seg_16_Bits and SEG_12) /= 0 then Line (Img, Mid_Mid, Bot_Mid, Colour); end if;
+         if (Seg_16_Bits and SEG_13) /= 0 then Line (Img, Mid_Mid, Bot_Right, Colour); end if;
+         if (Seg_16_Bits and SEG_14) /= 0 then Line (Img, Mid_Right, Bot_Right, Colour); end if;
+         if (Seg_16_Bits and SEG_15) /= 0 then Line (Img, Anchor, Bot_Mid, Colour); end if;
+         if (Seg_16_Bits and SEG_16) /= 0 then Line (Img, Bot_Mid, Bot_Right, Colour); end if;
+      end if;
       case Thickness is
          when Heavy =>
-            Char (Img, Chr, (Bottom_Left.X + 1, Bottom_Left.Y + 1), Height, Width, Colour, Light);
-            Char (Img, Chr, (Bottom_Left.X + 1, Bottom_Left.Y), Height, Width, Colour, Light);
-            Char (Img, Chr, (Bottom_Left.X,     Bottom_Left.Y + 1), Height, Width, Colour, Light);
+            Char (Img, Chr, (Baseline.X + 1, Baseline.Y + 1), Height, Width, Colour, Light);
+            Char (Img, Chr, (Baseline.X + 1, Baseline.Y), Height, Width, Colour, Light);
+            Char (Img, Chr, (Baseline.X,     Baseline.Y + 1), Height, Width, Colour, Light);
          when Normal =>
-            Char (Img, Chr, (Bottom_Left.X + 1, Bottom_Left.Y + 1), Height, Width, Colour, Light);
+            Char (Img, Chr, (Baseline.X + 1, Baseline.Y + 1), Height, Width, Colour, Light);
          when Light =>
             null;
       end case;

@@ -10,8 +10,16 @@ with Easy_Graphics;    use Easy_Graphics;
 
 procedure Tests is
 
+   procedure Write_Images (Img : Image_8; Prefix : String) is
+   begin
+      Write_PPM (Img, Prefix & "_plain.ppm", Plain);
+      Write_PPM (Img, Prefix & "_raw.ppm", Raw);
+      Write_PAM (Img, Prefix & ".pam");
+      Write_GIF (Img, Prefix & ".gif");
+   end Write_Images;
+
    procedure Test_Basics is
-      Small_8bit_Img  : Image_8 := New_Image (0, 0, 12, 16, BLACK);
+      Small_8bit_Img  : Image_8 := New_Image ((0, 0), (12, 16), BLACK);
    begin
       --  Test small 8-bit image with 'standard coords'
       for X of Xs (Small_8bit_Img) loop
@@ -19,40 +27,38 @@ procedure Tests is
             Plot (Small_8bit_Img, (X, Y), (if X = Y then RED else WHITE));
          end loop;
       end loop;
-      Write_PPM (Small_8bit_Img, "small_8bit_test_plain.ppm", Plain);
-      Write_PPM (Small_8bit_Img, "small_8bit_test_raw.ppm", Raw);
-      Write_GIF (Small_8bit_Img, "small_8bit_test.gif");
+      Write_Images (Small_8bit_Img, "small_img");
    end Test_Basics;
 
    procedure Test_Rects is
-      Rects_Img : Image_8 := New_Image (-100, -50, 400, 300, BLACK);
+      Rects_Img : Image_8 := New_Image ((-100, -50), (400, 300), BLACK);
    begin
       Rect (Rects_Img, (-20, -25), (100, 100), SILVER, Filled);
       Rect (Rects_Img, (50, 50), (200, 150), MAGENTA, Outline);
-      Write_PPM (Rects_Img, "rectangles_raw.ppm");
+      Write_Images (Rects_Img, "rectangles");
    end Test_Rects;
 
    procedure Test_Triangles is
-      Triangles_Img   : Image_8 := New_Image (-200, -200, 200, 300, SILVER);
+      Triangles_Img   : Image_8 := New_Image ((-200, -200), (200, 300), SILVER);
    begin
       Triangle (Triangles_Img, (0, 0), (100, 0), (50, 100), YELLOW, Outline);
       Triangle (Triangles_Img, (-150, 150), (0, 0), (100, 0), BLUE, Filled);
       Triangle (Triangles_Img, (50, 0), (150, 100), (190, -100), RED, Filled);
-      Write_PPM (Triangles_Img, "triangles_8bit_test_raw.ppm");
+      Write_Images (Triangles_Img, "triangles");
    end Test_Triangles;
 
    procedure Test_Circles is
-      Circles_Img     : Image_8 := New_Image (-200, -200, 200, 200, WHITE);
+      Circles_Img     : Image_8 := New_Image ((-200, -200), (200, 200), WHITE);
    begin
       Circle (Circles_Img, (0, 0), 50, BLACK, Outline);
       Circle (Circles_Img, (50, 50), 50, CYAN, Filled);
       --  Test drawing beyond the border...
       Circle (Circles_Img, (180, -180), 30, RED, Filled);
-      Write_PPM (Circles_Img, "circles_test_raw.ppm", Raw);
+      Write_Images (Circles_Img, "circles");
    end Test_Circles;
 
    procedure Test_Graphs is
-      Graph_8bit_Img  : Image_8 := New_Image (-200, -200, 200, 200, WHITE);
+      Graph_8bit_Img  : Image_8 := New_Image ((-200, -200), (200, 200), WHITE);
    begin
       --  Test bigger 8-bit image with coords crossing zero point
       for X of Xs (Graph_8bit_Img) loop
@@ -69,15 +75,14 @@ procedure Tests is
       for X in -180 .. 180 loop
          Plot (Graph_8bit_Img, (X, Integer (Sin (Float (X), 360.0) * 100.0)), BLUE);
       end loop;
-      Write_PPM (Graph_8bit_Img, "graph_8bit_test_plain.ppm", Plain);
-      Write_PPM (Graph_8bit_Img, "graph_8bit_test_raw.ppm", Raw);
+      Write_Images (Graph_8bit_Img, "graph");
    end Test_Graphs;
 
    procedure Test_HSV_Colour_Wheel is
       Diameter  : constant Integer := 480;
       Radius    : constant Integer := Diameter / 2;
       Radius_Fl : constant Float   := Float (Radius);
-      Wheel_Img : Image_8 := New_Image (-Radius, -Radius, Radius, Radius, BLACK);
+      Wheel_Img : Image_8 := New_Image ((-Radius, -Radius), (Radius, Radius), BLACK);
       V         : constant Float   := 1.0;
       function Atan2 (Y, X : Float) return Float is
          Res : Float;
@@ -116,22 +121,21 @@ procedure Tests is
    end Test_HSV_Colour_Wheel;
 
    procedure Test_Text is
-      Text_Img : Image_8 := New_Image (0, 0, 320, 200, WHITE);
+      Text_Img : Image_8 := New_Image ((0, 0), (320, 200), WHITE);
    begin
       Char (Text_Img, '2', (10, 30), 40, 20, BLUE);
       Char (Text_Img, '3', (77, 160), 40, 20, BLUE, Light);
-      Text (Text_Img, "1234567890", (0, 110), 32, 16, 5, BLACK);
+      Text (Text_Img, "1234567,890.00", (0, 110), 32, 16, 5, BLACK);
       Text (Text_Img, "+-*/%'£$=[({})]&@", (45, 12), 20, 10, 5, BLACK);
       Text (Text_Img, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", (0, 80), 16, 8, 4, BLACK);
       Text (Text_Img, "abcdefghijklmnopqrstuvwxyz", (45, 50), 12, 6, 2, BLACK, Light);
       Text (Text_Img, "HEAVY", (150, 150), 16, 8, 4, RED, Heavy);
       Text (Text_Img, "(C)2024 STEPHEN MERRONY", (180, 1), 8, 4, 2, BLACK, Light);
-      --  Text_Img.Text ("(C)2024 STEPHEN MERRONY", (160, 2), 8, 4, 2, BLACK, Light);
-      Write_PPM (Text_Img, "text_raw.ppm");
+      Write_Images (Text_Img, "text");
    end Test_Text;
 
    procedure Test_Turtle is
-      Turtle_Img : Image_8 := New_Image (-300, -300, 300, 300, WHITE);
+      Turtle_Img : Image_8 := New_Image ((-300, -300), (300, 300), WHITE);
       Turtle     : Turtle_Rec := New_Turtle (Turtle_Img'Unrestricted_Access);
       Angle      : Integer := 0;
    begin
@@ -150,24 +154,16 @@ procedure Tests is
       Turtle.Pen_Color (GREEN);   Turtle.Right (90);  Turtle.Forward (275); Turtle.Home;
       Turtle.Pen_Color (BLUE);    Turtle.Right (90);  Turtle.Forward (275); Turtle.Home;
       Turtle.Pen_Color (MAGENTA); Turtle.Right (90);  Turtle.Forward (275); Turtle.Home;
-      Write_PPM (Turtle_Img, "turtle_test.ppm");
+      Write_Images (Turtle_Img, "turtle");
    end Test_Turtle;
 
    procedure Test_Transparent_PAM is
-      PAM_Img : Image_8 := New_Image (-100, -100, 100, 100, TRANSPARENT);
+      PAM_Img : Image_8 := New_Image ((-100, -100), (100, 100), TRANSPARENT);
    begin
       Circle (PAM_Img, (0, 0), 75, CYAN, Filled);
       Write_PAM (PAM_Img, "transparent_circle.pam");
    end Test_Transparent_PAM;
 
-   procedure Test_GIF is
-      Triangles_Img   : Image_8 := New_Image (-200, -200, 200, 300, SILVER);
-   begin
-      Triangle (Triangles_Img, (0, 0), (100, 0), (50, 100), YELLOW, Outline);
-      Triangle (Triangles_Img, (-150, 150), (0, 0), (100, 0), BLUE, Filled);
-      Triangle (Triangles_Img, (50, 0), (150, 100), (190, -100), RED, Filled);
-      Write_GIF (Triangles_Img, "triangles_test.gif");
-   end Test_GIF;
 begin
 
    Test_Basics;
@@ -179,6 +175,5 @@ begin
    Test_Text;
    Test_Turtle;
    Test_Transparent_PAM;
-   Test_GIF;
 
 end Tests;

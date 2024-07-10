@@ -9,10 +9,10 @@ It is free to use, with no warranty, under the MIT license.
 
 ## Main Features
 
-* Image output as portable PPM files (other formats to follow)
+* Image output as portable PPM, PAM, and GIF files (other formats to follow)
 * Images of any size using whatever (integer) coordinate ranges you like
 * Simple set of graphics primitives provided
-* Basic turtle graphics are supported.
+* Basic turtle graphics are supported
 * Images are 24-bit colour + 8-bit alpha
 * Basic (HTML/CSS) colours predefined as constants, as is TRANSPARENT
 

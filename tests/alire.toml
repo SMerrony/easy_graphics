@@ -16,4 +16,3 @@ easy_graphics = "*"
 
 [[pins]]
 easy_graphics = { path = ".." }
-
