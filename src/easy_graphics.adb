@@ -335,20 +335,16 @@ package body Easy_Graphics is
       Anchor    : Point := Baseline;
       Adj_Ht    : Positive := Height;
       Top_Left, Top_Mid, Top_Right, Mid_Left, Mid_Mid, Mid_Right, Bot_Mid, Bot_Right : Point;
-      subtype Descenders is Character with 
-         Static_Predicate => Descenders in 'g' | 'j' | 'p' | 'q' | 'y';
-      subtype Squashers is Character with 
-         Static_Predicate => Squashers in 'a' | 'e' | 's' | 'x';   
    begin
       --  special case for full-stop
       if Chr = '.' then
          Circle (Img, (Baseline.X + (Width / 2), Baseline.Y + (Width / 4)), Width / 4, Colour, Filled);
       else
          --  adjust lower-case descenders and squashers
-         if Chr in Descenders then
+         if Chr in 'g' | 'j' | 'p' | 'q' | 'y' then
             Anchor.Y := @ - (Height / 2);
          end if;
-         if Chr in Squashers then
+         if Chr in 'a' | 'e' | 's' | 'x' | ',' then
             Adj_Ht := @ / 2;
          end if;
          Top_Left  := (Anchor.X,               Anchor.Y + Adj_Ht);
@@ -375,17 +371,17 @@ package body Easy_Graphics is
          if (Seg_16_Bits and SEG_14) /= 0 then Line (Img, Mid_Right, Bot_Right, Colour); end if;
          if (Seg_16_Bits and SEG_15) /= 0 then Line (Img, Anchor, Bot_Mid, Colour); end if;
          if (Seg_16_Bits and SEG_16) /= 0 then Line (Img, Bot_Mid, Bot_Right, Colour); end if;
+         case Thickness is
+            when Heavy =>
+               Char (Img, Chr, (Baseline.X + 1, Baseline.Y + 1), Height, Width, Colour, Normal);
+               Char (Img, Chr, (Baseline.X + 1, Baseline.Y), Height, Width, Colour, Normal);
+               Char (Img, Chr, (Baseline.X,     Baseline.Y + 1), Height, Width, Colour, Normal);
+            when Normal =>
+               Char (Img, Chr, (Baseline.X + 1, Baseline.Y + 1), Height, Width, Colour, Light);
+            when Light =>
+               null;
+         end case;
       end if;
-      case Thickness is
-         when Heavy =>
-            Char (Img, Chr, (Baseline.X + 1, Baseline.Y + 1), Height, Width, Colour, Light);
-            Char (Img, Chr, (Baseline.X + 1, Baseline.Y), Height, Width, Colour, Light);
-            Char (Img, Chr, (Baseline.X,     Baseline.Y + 1), Height, Width, Colour, Light);
-         when Normal =>
-            Char (Img, Chr, (Baseline.X + 1, Baseline.Y + 1), Height, Width, Colour, Light);
-         when Light =>
-            null;
-      end case;
    end Char;
 
    procedure Text (Img : in out Image_8;
@@ -502,7 +498,7 @@ package body Easy_Graphics is
       Unsigned_16'Write (GIF_Stream, Unsigned_16 (Img'Length (1)));
       Unsigned_16'Write (GIF_Stream, Unsigned_16 (Img'Length (2)));
       Unsigned_8'Write (GIF_Stream, 16#f6#);  --  7-bit colour palette, with GCT
-      Unsigned_8'Write (GIF_Stream, 0);       --  bg colour
+      Unsigned_8'Write (GIF_Stream, 127);     --  bg colour for (total) transparency
       Unsigned_8'Write (GIF_Stream, 0);       --  pixel aspect ratio
       for Y in reverse Img'Range (2) loop
          for X in Img'Range (1) loop
@@ -514,10 +510,10 @@ package body Easy_Graphics is
          end loop;
       end loop;
       --  For now, we give up if there are more than 128 colours in the Image
-      if Integer (Used_Colors.Length) > MAX_UNCOMPRESSED_COLOURS then
+      if Integer (Used_Colors.Length) >= MAX_UNCOMPRESSED_COLOURS then
          ASIO.Close (GIF_File);
          raise Too_Many_Colours with
-            "GIF export currently limted to 128 colours, image has" &
+            "GIF export currently limted to 127 colours, image has" &
             Used_Colors.Length'Image;
       end if;
       --  ATIO.Put_Line ("DEBUG: Colours found: " & Used_Colors.Length'Image);
@@ -529,11 +525,18 @@ package body Easy_Graphics is
          Unsigned_8'Write (GIF_Stream, Unsigned_8 ((Used_Colors (Positive (C)) and 16#0000ff#)));
       end loop;
       for C in Integer (Used_Colors.Length) + 1 .. MAX_UNCOMPRESSED_COLOURS loop
-         Unsigned_8'Write (GIF_Stream, 0);
+         Unsigned_8'Write (GIF_Stream, 255);
          Unsigned_8'Write (GIF_Stream, 0);
          Unsigned_8'Write (GIF_Stream, 0);
       end loop;
-      --  No GCE for now
+      --  GCE
+      Unsigned_8'Write  (GIF_Stream, 16#21#);  --  ASCII !
+      Unsigned_8'Write  (GIF_Stream, 16#f9#);  --  GCE
+      Unsigned_8'Write  (GIF_Stream, 16#04#);  --  4 bytes follow
+      Unsigned_8'Write  (GIF_Stream, 16#01#);  --  Yes, we may have transparency
+      Unsigned_16'Write (GIF_Stream, 0);       --  Animation delay (unused)
+      Unsigned_8'Write  (GIF_Stream, 127);     --  Ix of transparency in GCT
+      Unsigned_8'Write  (GIF_Stream, 0);       --  End if GCE
       --  Image descriptor
       Unsigned_8'Write  (GIF_Stream, 16#2c#);  --  ASCII comma
       Unsigned_32'Write (GIF_Stream, 0);       --  Top-left coordinates
@@ -548,7 +551,12 @@ package body Easy_Graphics is
       Blk_Ix := 3;
       for Y in reverse Img'Range (2) loop
          for X in Img'Range (1) loop
-            Image_Block (Blk_Ix) := Unsigned_8 (Used_Colors.Find_Index (RGBA_8_To_RGB_24 (Img (X, Y)))) - 1;
+            if Img (X, Y).A = 0 then   --  handle total transparency
+               Image_Block (Blk_Ix) := Unsigned_8 (MAX_UNCOMPRESSED_COLOURS) - 1;
+            else
+               --  N.B. the "- 1" in the next line is because GIF index starts at zero, not one.
+               Image_Block (Blk_Ix) := Unsigned_8 (Used_Colors.Find_Index (RGBA_8_To_RGB_24 (Img (X, Y)))) - 1;
+            end if;
             Blk_Ix := Blk_Ix + 1;
             if Blk_Ix > BLK_SIZE then
                for B of Image_Block loop  --  write out complete block
