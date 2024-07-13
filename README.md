@@ -9,7 +9,7 @@ Easy_Graphics is a simple library for generating graphical output from your Ada 
 Typical use cases might be educational projects, prototyping, programming challenges, or
 simply when you want to visualise something quickly in a larger system.
 
-The logo on the right is created with just a few lines of code, see [tests/src/create_logo.ada](tests/src/create_logo.ada)
+The logo on the right is created with just a few lines of code, see [this program](<tests/src/create_logo.adb>)
 
 The package is free to use, with no warranty, under the MIT license.
 
