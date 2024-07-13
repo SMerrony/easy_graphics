@@ -152,7 +152,6 @@ package Easy_Graphics is
    procedure Write_GIF (Img : Image_8;  Filename : String);
    --  Write a (currently uncompressed) GIF file to disk.
    --  Currently restricted to images with fewer than 128 colours.
-   --  Currently not exporting transparency TODO
 
    --  Turtle Graphics... ----
    type Turtle_Rec is tagged private;
