@@ -71,6 +71,15 @@ package body Easy_Graphics is
       end if;
    end Home;
 
+   procedure Go_To     (Turtle : in out Turtle_Rec; Position : Point) is
+      From_Pos : constant Point := Turtle.Position;
+   begin
+      Turtle.Position  := Position;
+      if Turtle.Pen_Down then
+         Line (Turtle.Image.all, From_Pos, Turtle.Position, Turtle.Colour);
+      end if;
+   end Go_To;
+
    procedure Pen_Up (Turtle : in out Turtle_Rec) is
    begin
       Turtle.Pen_Down := False;
@@ -99,19 +108,32 @@ package body Easy_Graphics is
       end if;
    end Forward;
 
-   procedure Left (Turtle : in out Turtle_Rec; Degrees : Natural) is
+   procedure Back (Turtle : in out Turtle_Rec; Steps : Natural) is
+      From_Pos     : constant Point := Turtle.Position;
+      New_X, New_Y : Integer;
    begin
-      Turtle.Direction := @ - Degrees;
+      New_X := From_Pos.X - Integer (Float (Steps) * Sin (Float (Turtle.Direction), 360.0));
+      New_Y := From_Pos.Y - Integer (Float (Steps) * Cos (Float (Turtle.Direction), 360.0));
+      Turtle.Position := (New_X, New_Y);
+      --  Ada.Text_IO.Put_Line ("DEBUG: Old Posn" & From_Pos'Image & " New Posn" & Turtle.Position'Image);
+      if Turtle.Pen_Down then
+         Line (Turtle.Image.all, From_Pos, Turtle.Position, Turtle.Colour);
+      end if;
+   end Back;
+
+   procedure Left (Turtle : in out Turtle_Rec; Angle : Degrees) is
+   begin
+      Turtle.Direction := (@ - Angle) mod 360;
    end Left;
 
-   procedure Right (Turtle : in out Turtle_Rec; Degrees : Natural) is
+   procedure Right (Turtle : in out Turtle_Rec; Angle : Degrees) is
    begin
-      Turtle.Direction := @ + Degrees;
+      Turtle.Direction := (@ + Angle) mod 360;
    end Right;
 
-   procedure Turn_To (Turtle : in out Turtle_Rec; Degrees : Natural) is
+   procedure Turn_To (Turtle : in out Turtle_Rec; Heading : Degrees) is
    begin
-      Turtle.Direction := Degrees;
+      Turtle.Direction := Heading;
    end Turn_To;
 
    function X_First (Img : Image_8) return Integer is (Img'First (1));

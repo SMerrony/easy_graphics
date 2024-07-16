@@ -137,7 +137,7 @@ procedure Tests is
    procedure Test_Turtle is
       Turtle_Img : Image_8 := New_Image ((-300, -300), (300, 300), WHITE);
       Turtle     : Turtle_Rec := New_Turtle (Turtle_Img'Unrestricted_Access);
-      Angle      : Integer := 0;
+      Angle      : Degrees := 0;
    begin
       Turtle.Pen_Down;
       while Angle < 360 loop

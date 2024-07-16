@@ -42,9 +42,10 @@ The package is free to use, with no warranty, under the MIT license.
 * `Text` draw a string
 
 ### Turtle Graphics
-* `New_Turtle` creates a turtle for an image
+* `New_Turtle` creates a virtual turtle for an image
 * `Home` centres the turtle
+* `Go_To` a specific coordinate
 * `Pen_Up`, `Pen_Down` and `Pen_Color`
-* `Forward`
+* `Forward`, `Back`
 * `Left` and `Right` turn relative to the current heading
 * `Turn_To` turns to an absolute heading

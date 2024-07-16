@@ -9,7 +9,7 @@ licenses = "MIT OR Apache-2.0 WITH LLVM-exception"
 website = ""
 tags = []
 
-executables = ["tests", "create_logo"]
+executables = ["tests", "create_logo", "sierpinski_arrowhead"]
 
 [[depends-on]]
 easy_graphics = "*"

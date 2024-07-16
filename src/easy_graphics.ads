@@ -155,17 +155,24 @@ package Easy_Graphics is
 
    --  Turtle Graphics... ----
    type Turtle_Rec is tagged private;
+   type Degrees is range -360 .. 360;
 
    function New_Turtle (Img_Acc : access Image_8) return Turtle_Rec;
 
    procedure Home      (Turtle : in out Turtle_Rec);
+   --  Centre the turtle
+
+   procedure Go_To     (Turtle : in out Turtle_Rec; Position : Point);
+   --  Set the position of the Turtle
+
    procedure Pen_Up    (Turtle : in out Turtle_Rec);
    procedure Pen_Down  (Turtle : in out Turtle_Rec);
    procedure Pen_Color (Turtle : in out Turtle_Rec; Colour : RGBA_8);
    procedure Forward   (Turtle : in out Turtle_Rec; Steps  : Natural);
-   procedure Left      (Turtle : in out Turtle_Rec; Degrees : Natural);
-   procedure Right     (Turtle : in out Turtle_Rec; Degrees : Natural);
-   procedure Turn_To   (Turtle : in out Turtle_Rec; Degrees : Natural);
+   procedure Back      (Turtle : in out Turtle_Rec; Steps  : Natural);
+   procedure Left      (Turtle : in out Turtle_Rec; Angle  : Degrees);
+   procedure Right     (Turtle : in out Turtle_Rec; Angle  : Degrees);
+   procedure Turn_To   (Turtle : in out Turtle_Rec; Heading : Degrees);
 
    Too_Many_Colours : exception;
 
@@ -175,7 +182,7 @@ private
    type Turtle_Rec is tagged record
       Image     : access Image_8;
       Position  : Point;
-      Direction : Integer;
+      Direction : Degrees;
       Pen_Down  : Boolean;
       Colour    : RGBA_8;
    end record;
