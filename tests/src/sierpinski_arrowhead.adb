@@ -2,24 +2,19 @@
 --  SPDX-FileCopyrightText: Copyright 2024 Stephen Merrony
 
 pragma Ada_2022;
-with Ada.Command_Line;
-with Ada.Text_IO;
+with Ada.Command_Line;  use Ada.Command_Line;
+with Ada.Text_IO;       use Ada.Text_IO;
 
-with Easy_Graphics;
+with Easy_Graphics;     use Easy_Graphics;
 
 procedure sierpinski_arrowhead is
 
-   use Ada.Command_Line, Ada.Text_IO, Easy_Graphics;
+   Length : constant Integer := 450;
+   Order  : Natural;
+   Img    : Image_8    := New_Image ((1, 1), (800, 600), BLACK);
+   Turtle : Turtle_Rec := New_Turtle (Img'Unrestricted_Access);
 
-   type    Order_Type is range 0 .. 8;
-
-   Length : constant Integer    := 450;
-
-   Order     : Order_Type;
-   Img       : Image_8 := New_Image ((1, 1), (800, 800), BLACK);
-   Turtle    : Turtle_Rec := New_Turtle (Img'Unrestricted_Access);
-
-   procedure Curve (Order : Order_Type; Length : Integer; Angle : Degrees) is
+   procedure Curve (Order : Natural; Length : Integer; Angle : Degrees) is
    begin
       if Order = 0 then
          Turtle.Forward (Length);
@@ -34,12 +29,12 @@ procedure sierpinski_arrowhead is
 
 begin
    if Argument_Count /= 1 then
-      Put_Line ("sierpinski_arrowhead <order>");
-      Put_Line ("  <order>   0 .. 7");
-      Put_Line ("open sierpinski_arrowhead_curve.gif to view ouput");
+      Put_Line ("Usage: sierpinski_arrowhead <order>");
+      Put_Line ("Where: <order>  is 0 .. 8");
+      Put_Line ("N.B. Open sierpinski_arrowhead_curve.gif to view ouput");
       return;
    end if;
-   Order := Order_Type'Value (Argument (1));
+   Order := Natural'Value (Argument (1));
 
    Turtle.Pen_Color (MAGENTA);
    Turtle.Go_To ((400, 1));
