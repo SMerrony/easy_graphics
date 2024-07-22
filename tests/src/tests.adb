@@ -167,28 +167,16 @@ procedure Tests is
    end Test_Transparent_PAM;
 
    procedure Test_Transparent_Logo is
-      Logo_Img : Easy_Image := New_Image ((1, 1), (400, 400), TRANSPARENT);
+      Logo_Img : Easy_Image := New_Image ((1, 1), (200, 200), TRANSPARENT);
    begin
-      Circle (Logo_Img, (200, 200), 199, MAGENTA, Filled);
-      Rect   (Logo_Img, (75, 225),  (400, 325), TRANSPARENT, Filled);
-      Text   (Logo_Img, "Easy",     (105, 245), 60, 20, 8, CYAN, Heavy);
-      Rect   (Logo_Img, (325, 175), (400, 225), TRANSPARENT, Filled);
-      Rect   (Logo_Img, (75, 75),   (400, 175), TRANSPARENT, Filled);
-      Text   (Logo_Img, "Graphics", (105, 95),  60, 20, 8, CYAN, Heavy);
+      Circle (Logo_Img, (100, 100), 99, MAGENTA, Filled);
+      Rect   (Logo_Img, (33, 113),  (200, 163), TRANSPARENT, Filled);
+      Text   (Logo_Img, "Easy",     (44, 123), 30, 10, 5, CYAN, Heavy);
+      Rect   (Logo_Img, (155, 88),  (200, 113), TRANSPARENT, Filled);
+      Rect   (Logo_Img, (33, 36),   (200, 88), TRANSPARENT, Filled);
+      Text   (Logo_Img, "Graphics", (44, 46),  30, 10, 5, CYAN, Heavy);
       Write_Images (Logo_Img, "logo_on_trans");
    end Test_Transparent_Logo;
-
-   procedure Test_Logo is
-      Logo_Img : Easy_Image := New_Image ((1, 1), (400, 400), BLACK);
-   begin
-      Circle (Logo_Img, (200, 200), 199, MAGENTA, Filled);
-      Rect   (Logo_Img, (75, 225),  (400, 325), BLACK, Filled);
-      Text   (Logo_Img, "Easy",     (105, 245), 60, 20, 8, CYAN, Heavy);
-      Rect   (Logo_Img, (325, 175), (400, 225), BLACK, Filled);
-      Rect   (Logo_Img, (75, 75),   (400, 175), BLACK, Filled);
-      Text   (Logo_Img, "Graphics", (105, 95),  60, 20, 8, CYAN, Heavy);
-      Write_Images (Logo_Img, "logo_on_black");
-   end Test_Logo;
 
 begin
 
@@ -202,6 +190,5 @@ begin
    Test_Turtle;
    Test_Transparent_PAM;
    Test_Transparent_Logo;
-   Test_Logo;
 
 end Tests;

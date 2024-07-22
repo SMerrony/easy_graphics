@@ -24,7 +24,7 @@ The package is free to use, with no warranty, under the MIT license.
 
 ### Utility Subprograms
 * `New_Image` create a new image ("canvas"), prefilled with a colour or transparent
-* `Write_PPM` create raw or plain NetPBM PPM file from image, Alpha is ignored
+* `Write_PPM` create "raw" or "plain" NetPBM PPM file from image, Alpha is ignored
 * `Write_GIF` create GIF file - only partially implemented at the moment
 * `Write_PAM` create NetPBM PAM file from image, includes transparency.  N.B. Convert to PNG with `convert img.pam img.png` or view directly with `pqiv`
 * `HSV_To_RGB` convert colour values
@@ -49,3 +49,8 @@ The package is free to use, with no warranty, under the MIT license.
 * `Forward`, `Back`
 * `Left` and `Right` turn relative to the current heading
 * `Turn_To` turns to an absolute heading
+
+### Example Code
+There are several example programs using Easy_Graphics in the `tests/src` directory.
+The [tests.adb file](<tests/src/tests.adb>) is intended to demonstrate all features
+that are currently implemented.
