@@ -11,7 +11,7 @@ procedure sierpinski_arrowhead is
 
    Length : constant Integer := 450;
    Order  : Natural;
-   Img    : Image_8    := New_Image ((1, 1), (800, 600), BLACK);
+   Img    : Easy_Image    := New_Image ((1, 1), (800, 600), BLACK);
    Turtle : Turtle_Rec := New_Turtle (Img'Unrestricted_Access);
 
    procedure Curve (Order : Natural; Length : Integer; Angle : Degrees) is

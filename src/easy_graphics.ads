@@ -51,59 +51,57 @@ package Easy_Graphics is
       X, Y : Integer;
    end record;
 
-   type Image_Types is (Alpha_8, Non_Alpha_8);
+   type Easy_Image  (<>) is private;
 
-   type Image_8  (<>) is private;
+   function New_Image (Bottom_Left, Top_Right : Point; Colour : RGBA_8) return Easy_Image;
+   --  Create a new Easy_Image.
+   --  @return a new Easy_Image with the specified bounds and colour.
 
-   function New_Image (Bottom_Left, Top_Right: Point; Colour : RGBA_8) return Image_8;
-   --  Create a new Image_8.
-   --  @return a new Image_8 with the specified bounds and colour.
-
-   function X_First (Img : Image_8) return Integer;
-   function Y_First (Img : Image_8) return Integer;
-   function X_Last  (Img : Image_8) return Integer;
-   function Y_Last  (Img : Image_8) return Integer;
+   function X_First (Img : Easy_Image) return Integer;
+   function Y_First (Img : Easy_Image) return Integer;
+   function X_Last  (Img : Easy_Image) return Integer;
+   function Y_Last  (Img : Easy_Image) return Integer;
 
    type Ordinates_Arr is array (Integer range <>) of Integer;
-   function Xs (Img : Image_8) return Ordinates_Arr;
+   function Xs (Img : Easy_Image) return Ordinates_Arr;
    --  Returns an array containing all X ordinates, suitable for iterating via 'of'.
-   function Ys (Img : Image_8) return Ordinates_Arr;
+   function Ys (Img : Easy_Image) return Ordinates_Arr;
    --  Returns an array containing all Y ordinates, suitable for iterating via 'of'.
 
    type PPM_Type is (Plain, Raw);
    type Filled_Or_Outline is (Filled, Outline);
 
-   procedure Plot (Img : in out Image_8; Pt : Point; Colour : RGBA_8);
+   procedure Plot (Img : in out Easy_Image; Pt : Point; Colour : RGBA_8);
    --  Sets a single pixel to the given colour.
    --  N.B. Does nothing if given coordinates are outside the image boundary.
 
-   procedure Set_Alpha (Img : in out Image_8; Pt : Point; Alpha : Level_8);
+   procedure Set_Alpha (Img : in out Easy_Image; Pt : Point; Alpha : Level_8);
    --  Changes the Alpha (transparency) value of the specified point.
    --  N.B. Does nothing if given coordinates are outside the image boundary.
 
-   procedure Fill (Img : in out Image_8; Colour : RGBA_8);
+   procedure Fill (Img : in out Easy_Image; Colour : RGBA_8);
    --  Fill given image with colour.
 
-   procedure Line (Img : in out Image_8;
+   procedure Line (Img : in out Easy_Image;
                    Start, Stop : Point;
                    Colour : RGBA_8);
    --  Draw line from Start to Stop using Bresenham's algorithm.
    --  Shamelessly adapted from Rosetta Code task.
 
-   procedure Rect (Img : in out Image_8;
+   procedure Rect (Img : in out Easy_Image;
                    Bottom_Left, Top_Right : Point;
                    Colour : RGBA_8;
                    Fill   : Filled_Or_Outline);
    --  Draw a horizontally-aligned rectangle on the image.
    --  Optionally filled.
 
-   procedure Triangle (Img        : in out Image_8;
+   procedure Triangle (Img        : in out Easy_Image;
                        P1, P2, P3 : Point;
                        Colour     : RGBA_8;
                        Fill       : Filled_Or_Outline);
    --  Draw an optionally filled triangle on the given image.
 
-   procedure Circle (Img    : in out Image_8;
+   procedure Circle (Img    : in out Easy_Image;
                      Centre : Point;
                      Radius : Positive;
                      Colour : RGBA_8;
@@ -113,7 +111,7 @@ package Easy_Graphics is
 
    type Weight is (Light, Normal, Heavy);
 
-   procedure Char (Img : in out Image_8;
+   procedure Char (Img : in out Easy_Image;
                    Chr : Character;
                    Baseline : Point;
                    Height, Width : Positive;
@@ -125,7 +123,7 @@ package Easy_Graphics is
    --  font will be displayed as spaces.
    --  It is suggested that Height := 2 * Width.
 
-   procedure Text (Img : in out Image_8;
+   procedure Text (Img : in out Easy_Image;
                    S   : String;
                    Bottom_Left : Point;
                    Height, Width, Spacing : Positive;
@@ -139,17 +137,17 @@ package Easy_Graphics is
    --  that Height := 2 * Width.
    --  Spacing is the number of points that will separate each character.
 
-   procedure Write_PPM (Img : Image_8;  Filename : String; Plain_Raw : PPM_Type := Raw);
+   procedure Write_PPM (Img : Easy_Image;  Filename : String; Plain_Raw : PPM_Type := Raw);
    --  Write an image as a PPM file to disk using plain (ASCII) or raw (mostly binary) format.
    --  Alpha (transparency) values are ignored as they are not supported by this format.
    --  Raw PPMs are significantly smaller than plain, but there is still no compression whatsoever.
 
-   procedure Write_PAM (Img : Image_8;  Filename : String);
+   procedure Write_PAM (Img : Easy_Image;  Filename : String);
    --  Write an image as a PAM file to disk using plain (ASCII) or raw (mostly binary) format.
    --  Alpha (transparency) values are included in the image.
    --  There is no compression whatsoever.
 
-   procedure Write_GIF (Img : Image_8;  Filename : String);
+   procedure Write_GIF (Img : Easy_Image;  Filename : String);
    --  Write a (currently uncompressed) GIF file to disk.
    --  Currently restricted to images with fewer than 128 colours.
 
@@ -157,7 +155,7 @@ package Easy_Graphics is
    type Turtle_Rec is tagged private;
    type Degrees is range -360 .. 360;
 
-   function New_Turtle (Img_Acc : access Image_8) return Turtle_Rec;
+   function New_Turtle (Img_Acc : access Easy_Image) return Turtle_Rec;
 
    procedure Home      (Turtle : in out Turtle_Rec);
    --  Centre the turtle
@@ -177,10 +175,11 @@ package Easy_Graphics is
    Too_Many_Colours : exception;
 
 private
-   type Image_8  is array (Integer range <>, Integer range <>) of RGBA_8;
+
+   type Easy_Image  is array (Integer range <>, Integer range <>) of RGBA_8;
 
    type Turtle_Rec is tagged record
-      Image     : access Image_8;
+      Image     : access Easy_Image;
       Position  : Point;
       Direction : Degrees;
       Pen_Down  : Boolean;
@@ -291,10 +290,10 @@ private
    SEG_15 : constant Seg_16_T := 2#0000_0000_0000_0010#;
    SEG_16 : constant Seg_16_T := 2#0000_0000_0000_0001#;
 
-   procedure Fill_Bottom_Flat_Triangle (Img : in out Image_8;
+   procedure Fill_Bottom_Flat_Triangle (Img : in out Easy_Image;
                                         P1, P2, P3 : Point;
                                         Colour : RGBA_8);
-   procedure Fill_Top_Flat_Triangle (Img : in out Image_8;
+   procedure Fill_Top_Flat_Triangle (Img : in out Easy_Image;
                                      P1, P2, P3 : Point;
                                      Colour : RGBA_8);
 end Easy_Graphics;

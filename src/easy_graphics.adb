@@ -41,14 +41,14 @@ package body Easy_Graphics is
       return RGB;
    end HSV_To_RGB;
 
-   function New_Image (Bottom_Left, Top_Right: Point; Colour : RGBA_8) return Image_8 is
-      Img : Image_8 (Bottom_Left.X .. Top_Right.X, Bottom_Left.Y .. Top_Right.Y);
+   function New_Image (Bottom_Left, Top_Right : Point; Colour : RGBA_8) return Easy_Image is
+      Img : Easy_Image (Bottom_Left.X .. Top_Right.X, Bottom_Left.Y .. Top_Right.Y);
    begin
       Fill (Img, Colour);
       return Img;
    end New_Image;
 
-   function New_Turtle (Img_Acc : access Image_8) return Turtle_Rec is
+   function New_Turtle (Img_Acc : access Easy_Image) return Turtle_Rec is
       Turtle : Turtle_Rec;
    begin
       Turtle.Image     := Img_Acc;
@@ -136,12 +136,12 @@ package body Easy_Graphics is
       Turtle.Direction := Heading;
    end Turn_To;
 
-   function X_First (Img : Image_8) return Integer is (Img'First (1));
-   function Y_First (Img : Image_8) return Integer is (Img'First (2));
-   function X_Last  (Img : Image_8) return Integer is (Img'Last  (1));
-   function Y_Last  (Img : Image_8) return Integer is (Img'Last  (2));
+   function X_First (Img : Easy_Image) return Integer is (Img'First (1));
+   function Y_First (Img : Easy_Image) return Integer is (Img'First (2));
+   function X_Last  (Img : Easy_Image) return Integer is (Img'Last  (1));
+   function Y_Last  (Img : Easy_Image) return Integer is (Img'Last  (2));
 
-   function Xs (Img : Image_8) return Ordinates_Arr is
+   function Xs (Img : Easy_Image) return Ordinates_Arr is
       Ords : Ordinates_Arr (Img'First (1) .. Img'Last (1));
    begin
       for I in Ords'Range loop
@@ -150,7 +150,7 @@ package body Easy_Graphics is
       return Ords;
    end Xs;
 
-   function Ys (Img : Image_8) return Ordinates_Arr is
+   function Ys (Img : Easy_Image) return Ordinates_Arr is
       Ords : Ordinates_Arr (Img'First (2) .. Img'Last (2));
    begin
       for I in Ords'Range loop
@@ -159,26 +159,26 @@ package body Easy_Graphics is
       return Ords;
    end Ys;
 
-   procedure Plot (Img : in out Image_8; Pt : Point; Colour : RGBA_8) is
+   procedure Plot (Img : in out Easy_Image; Pt : Point; Colour : RGBA_8) is
    begin
       if Pt.X in Img'Range (1) and then Pt.Y in Img'Range (2) then
          Img (Pt.X, Pt.Y) := Colour;
       end if;
    end Plot;
 
-   procedure Set_Alpha (Img : in out Image_8; Pt : Point; Alpha : Level_8) is
+   procedure Set_Alpha (Img : in out Easy_Image; Pt : Point; Alpha : Level_8) is
    begin
       if Pt.X in Img'Range (1) and then Pt.Y in Img'Range (2) then
          Img (Pt.X, Pt.Y).A := Alpha;
       end if;
    end Set_Alpha;
 
-   procedure Fill (Img : in out Image_8; Colour : RGBA_8) is
+   procedure Fill (Img : in out Easy_Image; Colour : RGBA_8) is
    begin
       Img := [others => [others => Colour]];
    end Fill;
 
-   procedure Line (Img : in out Image_8; Start, Stop : Point; Colour : RGBA_8) is
+   procedure Line (Img : in out Easy_Image; Start, Stop : Point; Colour : RGBA_8) is
       DX  : constant Float := abs Float (Stop.X - Start.X);
       DY  : constant Float := abs Float (Stop.Y - Start.Y);
       Err : Float;
@@ -219,7 +219,7 @@ package body Easy_Graphics is
       Plot (Img, (X, Y), Colour);
    end Line;
 
-   procedure Rect (Img : in out Image_8;
+   procedure Rect (Img : in out Easy_Image;
                    Bottom_Left, Top_Right : Point;
                    Colour : RGBA_8;
                    Fill   : Filled_Or_Outline)
@@ -245,7 +245,7 @@ package body Easy_Graphics is
       end if;
    end Rect;
 
-   procedure Fill_Bottom_Flat_Triangle (Img : in out Image_8;
+   procedure Fill_Bottom_Flat_Triangle (Img : in out Easy_Image;
                                         P1, P2, P3 : Point;
                                         Colour : RGBA_8)
    is
@@ -256,7 +256,7 @@ package body Easy_Graphics is
       end loop;
    end Fill_Bottom_Flat_Triangle;
 
-   procedure Fill_Top_Flat_Triangle (Img : in out Image_8;
+   procedure Fill_Top_Flat_Triangle (Img : in out Easy_Image;
                                      P1, P2, P3 : Point;
                                      Colour : RGBA_8)
    is
@@ -274,7 +274,7 @@ package body Easy_Graphics is
       P2 := Tmp;
    end Swap_Points;
 
-   procedure Triangle (Img        : in out Image_8;
+   procedure Triangle (Img        : in out Easy_Image;
                        P1, P2, P3 : Point;
                        Colour     : RGBA_8;
                        Fill       : Filled_Or_Outline) is
@@ -311,7 +311,7 @@ package body Easy_Graphics is
       end if;
    end Triangle;
 
-   procedure Circle (Img    : in out Image_8;
+   procedure Circle (Img    : in out Easy_Image;
                      Centre : Point;
                      Radius : Positive;
                      Colour : RGBA_8;
@@ -346,7 +346,7 @@ package body Easy_Graphics is
 
    end Circle;
 
-   procedure Char (Img : in out Image_8;
+   procedure Char (Img : in out Easy_Image;
                    Chr : Character;
                    Baseline : Point;
                    Height, Width : Positive;
@@ -406,7 +406,7 @@ package body Easy_Graphics is
       end if;
    end Char;
 
-   procedure Text (Img : in out Image_8;
+   procedure Text (Img : in out Easy_Image;
                   S   : String;
                   Bottom_Left : Point;
                   Height, Width, Spacing : Positive;
@@ -421,7 +421,7 @@ package body Easy_Graphics is
       end loop;
    end Text;
 
-   procedure Write_PPM (Img       : Image_8;
+   procedure Write_PPM (Img       : Easy_Image;
                         Filename  : String;
                         Plain_Raw : PPM_Type := Raw) is
       Plain_PPM_File : ATIO.File_Type;
@@ -462,7 +462,7 @@ package body Easy_Graphics is
       end case;
    end Write_PPM;
 
-   procedure Write_PAM (Img : Image_8;  Filename : String) is
+   procedure Write_PAM (Img : Easy_Image;  Filename : String) is
       PAM_File   : ASIO.File_Type;
       PAM_Stream : Stream_Access;
       NL         : constant Character := Character'Val (10);
@@ -488,7 +488,7 @@ package body Easy_Graphics is
       ASIO.Close (PAM_File);
    end Write_PAM;
 
-   procedure Write_GIF (Img : Image_8;  Filename : String) is
+   procedure Write_GIF (Img : Easy_Image;  Filename : String) is
       use Ada.Containers;
       use Interfaces;
       GIF_File   : ASIO.File_Type;

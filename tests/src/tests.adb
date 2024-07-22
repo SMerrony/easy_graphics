@@ -10,16 +10,18 @@ with Easy_Graphics;    use Easy_Graphics;
 
 procedure Tests is
 
-   procedure Write_Images (Img : Image_8; Prefix : String) is
+   Dir : constant String := "results/";
+
+   procedure Write_Images (Img : Easy_Image; Prefix : String) is
    begin
-      Write_PPM (Img, Prefix & "_plain.ppm", Plain);
-      Write_PPM (Img, Prefix & "_raw.ppm", Raw);
-      Write_PAM (Img, Prefix & ".pam");
-      Write_GIF (Img, Prefix & ".gif");
+      Write_PPM (Img, Dir & Prefix & "_plain.ppm", Plain);
+      Write_PPM (Img, Dir & Prefix & "_raw.ppm", Raw);
+      Write_PAM (Img, Dir & Prefix & ".pam");
+      Write_GIF (Img, Dir & Prefix & ".gif");
    end Write_Images;
 
    procedure Test_Basics is
-      Small_8bit_Img  : Image_8 := New_Image ((0, 0), (12, 16), BLACK);
+      Small_8bit_Img  : Easy_Image := New_Image ((0, 0), (12, 16), BLACK);
    begin
       --  Test small 8-bit image with 'standard coords'
       for X of Xs (Small_8bit_Img) loop
@@ -31,7 +33,7 @@ procedure Tests is
    end Test_Basics;
 
    procedure Test_Rects is
-      Rects_Img : Image_8 := New_Image ((-100, -50), (400, 300), BLACK);
+      Rects_Img : Easy_Image := New_Image ((-100, -50), (400, 300), BLACK);
    begin
       Rect (Rects_Img, (-20, -25), (100, 100), SILVER, Filled);
       Rect (Rects_Img, (50, 50), (200, 150), MAGENTA, Outline);
@@ -39,7 +41,7 @@ procedure Tests is
    end Test_Rects;
 
    procedure Test_Triangles is
-      Triangles_Img   : Image_8 := New_Image ((-200, -200), (200, 300), SILVER);
+      Triangles_Img   : Easy_Image := New_Image ((-200, -200), (200, 300), SILVER);
    begin
       Triangle (Triangles_Img, (0, 0), (100, 0), (50, 100), YELLOW, Outline);
       Triangle (Triangles_Img, (-150, 150), (0, 0), (100, 0), BLUE, Filled);
@@ -48,7 +50,7 @@ procedure Tests is
    end Test_Triangles;
 
    procedure Test_Circles is
-      Circles_Img     : Image_8 := New_Image ((-200, -200), (200, 200), WHITE);
+      Circles_Img     : Easy_Image := New_Image ((-200, -200), (200, 200), WHITE);
    begin
       Circle (Circles_Img, (0, 0), 50, BLACK, Outline);
       Circle (Circles_Img, (50, 50), 50, CYAN, Filled);
@@ -58,7 +60,7 @@ procedure Tests is
    end Test_Circles;
 
    procedure Test_Graphs is
-      Graph_8bit_Img  : Image_8 := New_Image ((-200, -200), (200, 200), WHITE);
+      Graph_8bit_Img  : Easy_Image := New_Image ((-200, -200), (200, 200), WHITE);
    begin
       --  Test bigger 8-bit image with coords crossing zero point
       for X of Xs (Graph_8bit_Img) loop
@@ -82,7 +84,7 @@ procedure Tests is
       Diameter  : constant Integer := 480;
       Radius    : constant Integer := Diameter / 2;
       Radius_Fl : constant Float   := Float (Radius);
-      Wheel_Img : Image_8 := New_Image ((-Radius, -Radius), (Radius, Radius), BLACK);
+      Wheel_Img : Easy_Image := New_Image ((-Radius, -Radius), (Radius, Radius), BLACK);
       V         : constant Float   := 1.0;
       function Atan2 (Y, X : Float) return Float is
          Res : Float;
@@ -117,11 +119,11 @@ procedure Tests is
             end;
          end loop;
       end loop;
-      Write_PPM (Wheel_Img, "hsv_colour_wheel.ppm");
+      Write_PPM (Wheel_Img, Dir & "hsv_colour_wheel.ppm");
    end Test_HSV_Colour_Wheel;
 
    procedure Test_Text is
-      Text_Img : Image_8 := New_Image ((0, 0), (320, 200), WHITE);
+      Text_Img : Easy_Image := New_Image ((0, 0), (320, 200), WHITE);
    begin
       Char (Text_Img, '2', (10, 30), 40, 20, BLUE);
       Char (Text_Img, '3', (77, 160), 40, 20, BLUE, Light);
@@ -135,7 +137,7 @@ procedure Tests is
    end Test_Text;
 
    procedure Test_Turtle is
-      Turtle_Img : Image_8 := New_Image ((-300, -300), (300, 300), WHITE);
+      Turtle_Img : Easy_Image := New_Image ((-300, -300), (300, 300), WHITE);
       Turtle     : Turtle_Rec := New_Turtle (Turtle_Img'Unrestricted_Access);
       Angle      : Degrees := 0;
    begin
@@ -158,14 +160,14 @@ procedure Tests is
    end Test_Turtle;
 
    procedure Test_Transparent_PAM is
-      PAM_Img : Image_8 := New_Image ((-100, -100), (100, 100), TRANSPARENT);
+      PAM_Img : Easy_Image := New_Image ((-100, -100), (100, 100), TRANSPARENT);
    begin
       Circle (PAM_Img, (0, 0), 75, CYAN, Filled);
-      Write_PAM (PAM_Img, "transparent_circle.pam");
+      Write_PAM (PAM_Img, Dir & "transparent_circle.pam");
    end Test_Transparent_PAM;
 
    procedure Test_Transparent_Logo is
-      Logo_Img : Image_8 := New_Image ((1, 1), (400, 400), TRANSPARENT);
+      Logo_Img : Easy_Image := New_Image ((1, 1), (400, 400), TRANSPARENT);
    begin
       Circle (Logo_Img, (200, 200), 199, MAGENTA, Filled);
       Rect   (Logo_Img, (75, 225),  (400, 325), TRANSPARENT, Filled);
@@ -177,7 +179,7 @@ procedure Tests is
    end Test_Transparent_Logo;
 
    procedure Test_Logo is
-      Logo_Img : Image_8 := New_Image ((1, 1), (400, 400), BLACK);
+      Logo_Img : Easy_Image := New_Image ((1, 1), (400, 400), BLACK);
    begin
       Circle (Logo_Img, (200, 200), 199, MAGENTA, Filled);
       Rect   (Logo_Img, (75, 225),  (400, 325), BLACK, Filled);
