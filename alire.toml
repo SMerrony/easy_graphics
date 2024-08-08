@@ -15,8 +15,8 @@ authors = ["Stephen Merrony"]
 maintainers = ["Stephen Merrony <merrony@gmail.com>"]
 maintainers-logins = ["SMerrony"]
 licenses = "MIT OR Apache-2.0 WITH LLVM-exception"
-website = "https://github.com/SMerrony/easy_graphic"
+website = "https://github.com/SMerrony/easy_graphics"
 tags = ["graphics", "image", "ppm", "pam", "gif", "turtle"]
 
 [[depends-on]]
-gnat = "^13.0"
+gnat = ">=13.0"
